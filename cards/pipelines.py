@@ -29,6 +29,7 @@ the aggregate's dataset as well as the 2F evaluation.
 from __future__ import annotations
 
 import kwdagger
+from magnet.leasing import LeasedProcessNode
 
 from cards.nodes.cd_aggregate import CDAggregateCLI
 from cards.nodes.cd_drag_summary import CDDragSummaryCLI
@@ -39,18 +40,46 @@ from cards.nodes.cd_postprocess import CDPostprocessCLI
 __all__ = ['drag_pipeline']
 
 
-class _InitInference(kwdagger.ProcessNode):
+class _Inference(LeasedProcessNode):
+    """
+    A generation round, holding its model only while it generates.
+
+    The card names a *model config* (``Qwen3_8B_NoThinking``), not a served
+    model, so the endpoint alias has to be looked up rather than read
+    straight off a parameter. The alias is the config's ``model_name`` --
+    the same string the REST engine sends as ``model`` -- so an endpoint
+    that serves this card is one the card can already address.
+    """
+
+    executable = 'python -m cards.nodes.cd_inference'
+    params = CDInferenceCLI
+
+    def resolve_endpoints(self):
+        from contextual_drag.inference.config import load_model_config
+
+        config = self.final_config or {}
+        alias = config.get('model_config')
+        if not alias:
+            return []
+        try:
+            block = load_model_config(config.get('model_params_fpath'), alias)
+        except Exception:
+            # An unknown alias is the node's problem to report when it runs,
+            # with its own message naming the available aliases. Raising here
+            # would turn it into an opaque DAG-compile failure.
+            return []
+        served = (block or {}).get('model_name')
+        return [served] if served else []
+
+
+class _InitInference(_Inference):
     """Clean-prompt generation."""
     name = 'init_inference'
-    executable = 'python -m cards.nodes.cd_inference'
-    params = CDInferenceCLI
 
 
-class _TwofInference(kwdagger.ProcessNode):
+class _TwofInference(_Inference):
     """2F-augmented generation."""
     name = 'twof_inference'
-    executable = 'python -m cards.nodes.cd_inference'
-    params = CDInferenceCLI
 
 
 class _EvalInit(kwdagger.ProcessNode):
