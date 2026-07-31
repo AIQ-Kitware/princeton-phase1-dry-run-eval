@@ -46,6 +46,10 @@ ENDPOINT_ENVVAR = 'CONTEXTUAL_DRAG_ENDPOINT'
 ENDPOINT_MODEL_ENVVAR = 'CONTEXTUAL_DRAG_ENDPOINT_MODEL'
 #: Optional bearer token.
 ENDPOINT_KEY_ENVVAR = 'CONTEXTUAL_DRAG_ENDPOINT_API_KEY'
+#: infer-stack exports these from ``infer-stack run``, so a leased
+#: endpoint needs no extra wiring.
+INFER_STACK_BASE_URL_ENVVAR = 'OPENAI_BASE_URL'
+INFER_STACK_API_KEY_ENVVAR = 'OPENAI_API_KEY'
 
 
 @dataclass
@@ -107,7 +111,10 @@ def endpoint_from_env(model_config: dict) -> Optional[EndpointConfig]:
         EndpointConfig | None: None when no endpoint is configured, in
             which case the caller should build a local vLLM engine.
     """
-    base_url = os.environ.get(ENDPOINT_ENVVAR, '').strip()
+    base_url = (
+        os.environ.get(ENDPOINT_ENVVAR, '').strip()
+        or os.environ.get(INFER_STACK_BASE_URL_ENVVAR, '').strip()
+    )
     if not base_url:
         return None
     model = (
@@ -123,7 +130,9 @@ def endpoint_from_env(model_config: dict) -> Optional[EndpointConfig]:
     return EndpointConfig(
         base_url=base_url,
         model=model,
-        api_key=os.environ.get(ENDPOINT_KEY_ENVVAR) or None,
+        api_key=(os.environ.get(ENDPOINT_KEY_ENVVAR)
+                 or os.environ.get(INFER_STACK_API_KEY_ENVVAR)
+                 or None),
     )
 
 
