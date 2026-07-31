@@ -29,6 +29,7 @@ the aggregate's dataset as well as the 2F evaluation.
 from __future__ import annotations
 
 import kwdagger
+from magnet.containers import ContainerProcessNode
 from magnet.leasing import LeasedProcessNode
 
 from cards.nodes.cd_aggregate import CDAggregateCLI
@@ -82,35 +83,35 @@ class _TwofInference(_Inference):
     name = 'twof_inference'
 
 
-class _EvalInit(kwdagger.ProcessNode):
+class _EvalInit(ContainerProcessNode):
     """Score the clean round, emitting the flattened form."""
     name = 'eval_init'
     executable = 'python -m cards.nodes.cd_eval'
     params = CDEvalCLI
 
 
-class _EvalTwof(kwdagger.ProcessNode):
+class _EvalTwof(ContainerProcessNode):
     """Score the 2F round."""
     name = 'eval_twof'
     executable = 'python -m cards.nodes.cd_eval'
     params = CDEvalCLI
 
 
-class _Postprocess(kwdagger.ProcessNode):
+class _Postprocess(ContainerProcessNode):
     """Fold flattened generations into a dataset."""
     name = 'postprocess'
     executable = 'python -m cards.nodes.cd_postprocess'
     params = CDPostprocessCLI
 
 
-class _Aggregate(kwdagger.ProcessNode):
+class _Aggregate(ContainerProcessNode):
     """Filter problems and build the 2F dataset."""
     name = 'aggregate'
     executable = 'python -m cards.nodes.cd_aggregate'
     params = CDAggregateCLI
 
 
-class _DragSummary(kwdagger.ProcessNode):
+class _DragSummary(ContainerProcessNode):
     """Compute the drag and emit the terminal artifact."""
     name = 'drag_summary'
     executable = 'python -m cards.nodes.cd_drag_summary'
