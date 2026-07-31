@@ -34,7 +34,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CARDS_DIR = REPO_ROOT / "cards"
 NODES_DIR = CARDS_DIR / "nodes"
 
-REQUIRED_YAML_KEYS = {"title", "description", "version", "claim", "pipeline", "symbols"}
+REQUIRED_YAML_KEYS = {"title", "description", "version", "claim", "symbols"}
+#: A card declares its execution backend one of two ways: the original
+#: single-node ``pipeline`` form, or a ``kwdagger`` DAG. Exactly one.
+BACKEND_KEYS = {"pipeline", "kwdagger"}
 
 # Names the claim is always allowed to reference (Python keywords / common
 # exception types / typing-time builtins).
@@ -62,14 +65,41 @@ def _load_card(path: Path) -> dict:
 
 
 def _node_module_from_pipeline(card: dict) -> str | None:
-    """Extract ``cards.nodes.<module>`` from the first pipeline stage's executable."""
+    """Find the node module whose output the claim reads.
+
+    For the single-node ``pipeline`` form that is the only stage. For a
+    ``kwdagger`` DAG it is the declared ``terminal_node``, since that is the
+    node whose artifact MAGNET binds as symbols.
+    """
     pipeline = card.get("pipeline") or {}
     for stage in pipeline.values():
         exe = (stage or {}).get("executable", "")
         match = re.search(r"-m\s+(cards\.nodes\.[\w_.]+)", exe)
         if match:
             return match.group(1)
-    return None
+
+    kwdagger_spec = card.get("kwdagger") or {}
+    terminal = kwdagger_spec.get("terminal_node")
+    if not terminal:
+        return None
+    return _terminal_node_module(kwdagger_spec.get("pipeline", ""), terminal)
+
+
+def _terminal_node_module(pipeline_ref: str, terminal: str) -> str | None:
+    """Resolve a ``pkg.mod.factory()`` reference and read a node's executable."""
+    match = re.match(r"([\w_.]+)\.(\w+)\(\)\s*$", (pipeline_ref or "").strip())
+    if not match:
+        return None
+    import importlib
+
+    module = importlib.import_module(match.group(1))
+    dag = getattr(module, match.group(2))()
+    node = dag.node_dict.get(terminal)
+    if node is None:
+        return None
+    exe_match = re.search(r"-m\s+(cards\.nodes\.[\w_.]+)",
+                          node.executable or "")
+    return exe_match.group(1) if exe_match else None
 
 
 def _wrapper_result_keys(node_module: str) -> set[str]:
@@ -113,6 +143,11 @@ def test_card_yaml_parses(card_path: Path) -> None:
     assert isinstance(card, dict), f"{card_path.name} did not parse as a mapping"
     missing = REQUIRED_YAML_KEYS - set(card)
     assert not missing, f"{card_path.name} missing required keys: {sorted(missing)}"
+    backends = BACKEND_KEYS & set(card)
+    assert len(backends) == 1, (
+        f"{card_path.name} must declare exactly one of {sorted(BACKEND_KEYS)}; "
+        f"found {sorted(backends)}"
+    )
 
 
 @pytest.mark.parametrize("card_path", _CARD_PATHS, ids=_CARD_IDS)
@@ -135,7 +170,16 @@ def test_card_claim_symbols_are_declared(card_path: Path) -> None:
         n.id for n in ast.walk(tree)
         if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)
     }
-    undeclared = referenced - allowed
+    # A claim may bind its own locals; those are not undeclared inputs.
+    assigned = {
+        n.id for n in ast.walk(tree)
+        if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)
+    } | {
+        target.id
+        for n in ast.walk(tree) if isinstance(n, ast.comprehension)
+        for target in ast.walk(n.target) if isinstance(target, ast.Name)
+    }
+    undeclared = referenced - allowed - assigned
     assert not undeclared, (
         f"{card_path.name}: claim.python references undeclared names "
         f"{sorted(undeclared)}. Allowed = symbols ∪ wrapper_result_keys ∪ builtins. "
@@ -201,7 +245,13 @@ def test_card_node_subprocess_chain_uses_package_cli(card_path: Path) -> None:
             and node.func.value.id == "subprocess"
             and node.args)
     ]
-    assert run_calls, f"{node_module}: no subprocess.run(...) calls found"
+    if not run_calls:
+        # A DAG node need not shell out itself -- the terminal node only
+        # reads its inputs, and the rest route through
+        # cards.nodes._step.run_contextual_drag. The invariant still holds,
+        # it just lives in the helper; see
+        # test_step_helper_chains_through_package_cli.
+        pytest.skip(f"{node_module}: shells out via the shared step helper")
 
     # Pre-compute every Name -> rhs assignment found *anywhere* in the file
     # (module, function, method scopes). The wrappers bind helpers like
@@ -279,3 +329,36 @@ def _collect_assignments(tree: ast.AST) -> dict[str, ast.AST]:
                 if isinstance(tgt, ast.Name):
                     out[tgt.id] = node.value
     return out
+
+
+def test_step_helper_chains_through_package_cli() -> None:
+    """The shared helper must still chain through `python -m contextual_drag`.
+
+    DAG nodes route their subprocess calls through
+    ``cards.nodes._step.run_contextual_drag`` rather than calling
+    ``subprocess.run`` directly, so the invariant that nothing shells out to
+    a stale script path is enforced here instead of in each node.
+    """
+    src_path = NODES_DIR / "_step.py"
+    if not src_path.exists():
+        pytest.skip("no shared step helper in this checkout")
+    tree = ast.parse(src_path.read_text())
+
+    run_calls = [
+        node for node in ast.walk(tree)
+        if (isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "run"
+            and isinstance(node.func.value, ast.Name)
+            and node.func.value.id == "subprocess"
+            and node.args)
+    ]
+    assert run_calls, "_step.py: no subprocess.run(...) call found"
+
+    name_to_rhs = _collect_assignments(tree)
+    for call in run_calls:
+        head_consts = _list_head_constants(call.args[0], name_to_rhs, depth=6)
+        assert "-m" in head_consts and "contextual_drag" in head_consts, (
+            f"_step.py: subprocess.run does not chain through the "
+            f"contextual_drag CLI. First-arg constants seen: {head_consts!r}"
+        )
