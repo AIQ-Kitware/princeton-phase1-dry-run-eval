@@ -27,7 +27,7 @@ from types import SimpleNamespace
 from typing import Optional
 
 from transformers import AutoTokenizer
-from vllm import AsyncEngineArgs, AsyncLLMEngine, SamplingParams
+from contextual_drag.inference.sampling import SamplingParams  # noqa: F401
 
 from contextual_drag.inference.config import load_model_config, make_sampling_params
 from contextual_drag.inference.prompts import prompt_hash
@@ -271,10 +271,28 @@ def install_signal_handlers(loop):
 
 
 # ---------- engine init ----------
-def build_engine(args, model_config) -> AsyncLLMEngine:
-    """Build kwargs against the actual AsyncEngineArgs schema so this script
-    stays compatible across vLLM versions (e.g. `disable_log_requests` vs
-    `enable_log_requests`)."""
+def build_engine(args, model_config):
+    """Build the engine this run will generate with.
+
+    An OpenAI-compatible endpoint takes precedence when one is configured
+    (see `contextual_drag.inference.endpoint`), in which case no GPU is
+    touched and vLLM need not be installed. Otherwise an in-process vLLM
+    engine is built exactly as before.
+    """
+    from contextual_drag.inference.endpoint import (
+        EndpointEngine, endpoint_from_env,
+    )
+    endpoint_config = endpoint_from_env(model_config)
+    if endpoint_config is not None:
+        print(f"[engine] using endpoint {endpoint_config.base_url} "
+              f"model={endpoint_config.model!r} (no local GPU engine)",
+              flush=True)
+        return EndpointEngine(endpoint_config)
+
+    # vLLM is an optional dependency; import it only on the path that needs it
+    # so a REST-backed run works without CUDA installed.
+    from vllm import AsyncEngineArgs, AsyncLLMEngine
+
     ea_fields = {f.name for f in dataclasses.fields(AsyncEngineArgs)}
     candidate = dict(
         model=model_config["model_name"],

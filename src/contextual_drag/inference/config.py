@@ -1,15 +1,20 @@
-"""Model configuration loading + vLLM sampling-params construction.
+"""Model configuration loading + sampling-params construction.
 
 Reads `eval_models_params.json` (the packaged resource shipped under
-`contextual_drag.resources.inference`) and produces a `vllm.SamplingParams`
-from the per-model sampling block, with optional CLI overrides for
+`contextual_drag.resources.inference`) and produces sampling params from
+the per-model sampling block, with optional CLI overrides for
 `max_tokens`. Pass `config_path=None` to use the packaged resource.
+
+The params type is `vllm.SamplingParams` when vLLM is installed and an
+equivalent stand-in otherwise, so this module imports on a machine with no
+CUDA and a REST-backed run behaves identically. See
+`contextual_drag.inference.sampling`.
 """
 
 import json
 from typing import Any, Optional
 
-from vllm import SamplingParams
+from contextual_drag.inference.sampling import SamplingParams
 
 from contextual_drag.config.resources import inference_model_config_resource
 
