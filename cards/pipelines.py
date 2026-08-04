@@ -166,6 +166,6 @@ def drag_pipeline():
     nodes['init_inference'].param_ports['model_config'].connect(
         nodes['aggregate'].param_ports['model_config'])
 
-    dag = kwdagger.Pipeline(nodes)
+    dag = kwdagger.Pipeline(list(nodes.values()))
     dag.build_nx_graphs()
     return dag

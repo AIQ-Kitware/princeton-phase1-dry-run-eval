@@ -431,7 +431,7 @@ class GenericPipelineProcessor:
             node = ProcessNode(name=node_name, **node_params)
             nodes[node_name] = node
 
-        self.dag = Pipeline(nodes)
+        self.dag = Pipeline(list(nodes.values()))
         self.dag.build_nx_graphs()
 
     def dispatch(self, backend='serial', skip_existing=True, **kwargs):
