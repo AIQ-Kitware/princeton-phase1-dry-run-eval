@@ -1,4 +1,14 @@
 {
+    "Gemma4_E2B": {
+        "model_name": "google/gemma-4-E2B-it",
+        "context_length": 8192,
+        "sampling_params": {
+            "temperature": 1.0,
+            "top_p": 0.95,
+            "top_k": 64,
+            "max_tokens": 2048
+        }
+    },
     "Qwen3_8B_Thinking": {
         "model_name": "Qwen/Qwen3-8B",
         "context_length": 32768,
