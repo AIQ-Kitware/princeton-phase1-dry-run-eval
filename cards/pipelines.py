@@ -28,6 +28,9 @@ the aggregate's dataset as well as the 2F evaluation.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import kwdagger
 from magnet.containers import ContainerProcessNode
 from magnet.leasing import LeasedProcessNode
@@ -39,6 +42,56 @@ from cards.nodes.cd_inference import CDInferenceCLI
 from cards.nodes.cd_postprocess import CDPostprocessCLI
 
 __all__ = ['drag_pipeline']
+
+# eval_models_params.json as it sits in the checkout. `resolve_endpoints` runs
+# in the *scheduler*, which is the one process in this pipeline that has only
+# magnet + kwdagger -- every node's own dependency is satisfied inside its
+# container. Importing ``contextual_drag`` to read this mapping therefore made
+# DAG compilation depend on a package the scheduler has no reason to have, and
+# the card crashed with ModuleNotFoundError on any host where it was not also
+# pip-installed alongside magnet. It is a JSON file; read it as one.
+_MODEL_PARAMS_RELPATH = Path(
+    'src/contextual_drag/resources/inference/eval_models_params.json')
+
+
+def _model_params_fpath(override=None) -> Path:
+    """
+    Locate eval_models_params.json without importing ``contextual_drag``.
+
+    Args:
+        override (str | None): explicit path, when a node names one.
+
+    Returns:
+        Path
+
+    Raises:
+        RuntimeError: if the packaged resource cannot be found. That is a
+            broken checkout, not a card mistake, so it must be loud.
+    """
+    if override:
+        candidate = Path(override).expanduser()
+        if candidate.exists():
+            return candidate
+        raise RuntimeError(
+            f'model params file {candidate} does not exist')
+    # cards/ sits directly under the repo root, next to src/.
+    candidate = Path(__file__).resolve().parent.parent / _MODEL_PARAMS_RELPATH
+    if candidate.exists():
+        return candidate
+    # Installed layout (no checkout): fall back to the packaged copy.
+    try:
+        from importlib import resources
+        packaged = Path(str(resources.files(
+            'contextual_drag.resources.inference'
+        ).joinpath('eval_models_params.json')))
+        if packaged.exists():
+            return packaged
+    except Exception:
+        pass
+    raise RuntimeError(
+        f'cannot locate eval_models_params.json; looked for {candidate} and '
+        'for the packaged contextual_drag.resources.inference copy. The card '
+        'cannot resolve which endpoint its generation rounds need.')
 
 
 class _Inference(LeasedProcessNode):
@@ -56,20 +109,21 @@ class _Inference(LeasedProcessNode):
     params = CDInferenceCLI
 
     def resolve_endpoints(self):
-        from contextual_drag.inference.config import load_model_config
-
         config = self.final_config or {}
         alias = config.get('model_config')
         if not alias:
             return []
-        try:
-            block = load_model_config(config.get('model_params_fpath'), alias)
-        except Exception:
+        fpath = _model_params_fpath(config.get('model_params_fpath'))
+        blocks = json.loads(fpath.read_text())
+        block = blocks.get(alias)
+        if block is None:
             # An unknown alias is the node's problem to report when it runs,
             # with its own message naming the available aliases. Raising here
-            # would turn it into an opaque DAG-compile failure.
+            # would turn it into an opaque DAG-compile failure. A *missing
+            # file* is different and does raise, above -- that one is never
+            # the card's fault.
             return []
-        served = (block or {}).get('model_name')
+        served = block.get('model_name')
         return [served] if served else []
 
 

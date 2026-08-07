@@ -1,0 +1,80 @@
+"""
+The scheduler resolves endpoint aliases without importing contextual_drag.
+
+`resolve_endpoints` runs at DAG-compile time, in the process that builds the
+schedule -- not inside any node's container. That process has magnet and
+kwdagger and nothing else. When the lookup imported `contextual_drag`, the card
+compiled only on hosts where the package happened to be pip-installed next to
+magnet, and failed everywhere else with a ModuleNotFoundError raised from the
+middle of kwdagger's job submission.
+
+Each test builds its own pipeline: ``model_config`` is a shared port wired from
+init_inference to twof_inference and aggregate, so configuring one node fixes
+the value for the others.
+"""
+
+import json
+
+import pytest
+
+from cards.pipelines import _model_params_fpath, drag_pipeline
+
+
+def _inference_node(alias):
+    node = drag_pipeline().node_dict['init_inference']
+    node.configure({'model_config': alias})
+    return node
+
+
+def _blocks():
+    return json.loads(_model_params_fpath().read_text())
+
+
+def test_alias_resolves_to_the_served_model_name():
+    """The endpoint alias is the config block's model_name, verbatim."""
+    alias, block = next(
+        (k, v) for k, v in _blocks().items() if v.get('model_name'))
+    assert _inference_node(alias).resolve_endpoints() == [block['model_name']]
+
+
+def test_the_scaleup_alias_resolves():
+    """The alias contextual_drag_scaleup.yaml names must be addressable."""
+    assert _inference_node('Gemma4_E2B').resolve_endpoints() == [
+        'google/gemma-4-E2B-it']
+
+
+def test_unknown_alias_yields_no_lease_rather_than_crashing():
+    """The node reports a bad alias when it runs, naming the valid ones."""
+    assert _inference_node('NotAModelThatExists').resolve_endpoints() == []
+
+
+def test_missing_params_file_is_loud():
+    """A broken checkout is never silently a zero-lease run."""
+    with pytest.raises(RuntimeError):
+        _model_params_fpath('/nonexistent/eval_models_params.json')
+
+
+def test_lookup_does_not_import_contextual_drag(monkeypatch):
+    """
+    The regression itself: resolve with the package banned from import.
+
+    Blocking the import outright is the only check that stays honest on a host
+    where contextual_drag *is* installed -- which is exactly the kind of host
+    the original bug hid on.
+    """
+    import builtins
+    real_import = builtins.__import__
+
+    def guard(name, *args, **kwargs):
+        if name == 'contextual_drag' or name.startswith('contextual_drag.'):
+            raise AssertionError(
+                f'resolve_endpoints imported {name}; the scheduler must not '
+                'depend on a node-container package')
+        return real_import(name, *args, **kwargs)
+
+    blocks = _blocks()
+    alias = next(k for k, v in blocks.items() if v.get('model_name'))
+    node = _inference_node(alias)
+
+    monkeypatch.setattr(builtins, '__import__', guard)
+    assert node.resolve_endpoints() == [blocks[alias]['model_name']]
