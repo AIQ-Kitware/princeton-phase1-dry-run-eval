@@ -126,10 +126,52 @@ class CDInferenceCLI(scfg.DataConfig):
         ] + thinking_args)
 
         completions = first_match(output_dir, 'completions.jsonl')
+
+        # `contextual_drag inference run` exits 0 even when every row failed --
+        # it reports per-row errors and moves on, which is right for a partial
+        # run and wrong for a total one. Without this check a node that
+        # generated NOTHING wrote a healthy-looking manifest, and the failure
+        # surfaced two nodes downstream as `AxisError(-1, 0, None)` from inside
+        # numpy, naming neither the endpoint nor the request that was rejected.
+        #
+        # Seen for real: the 2F round's prompts totalled one token over the
+        # endpoint's max_model_len, so all six rows came back 400
+        # ContextWindowExceededError and the run was declared complete.
+        if max_questions > 0 and _n_completions(completions) == 0:
+            raise SystemExit(
+                f'{config.task_name}: generated 0 completions for '
+                f'{max_questions} row(s). Every request failed -- the errors '
+                f'above name the cause. Common ones: the prompt plus '
+                f'max_tokens exceeds the endpoint\'s max_model_len, or the '
+                f'endpoint is serving a different model than the card names.')
+
         write_manifest(manifest_fpath, dataset_fpath=dataset_fpath,
                        n_rows=max_questions, completions_fpath=completions,
                        output_dir=output_dir, task_name=config.task_name,
                        skipped=False)
+
+
+def _n_completions(fpath):
+    """
+    Count records in a completions JSONL, tolerating absence.
+
+    Args:
+        fpath (str | Path | None): the file, or None when none was produced.
+
+    Returns:
+        int
+
+    Example:
+        >>> _n_completions(None)
+        0
+    """
+    if not fpath:
+        return 0
+    path = Path(fpath)
+    if not path.exists():
+        return 0
+    with open(path) as file:
+        return sum(1 for line in file if line.strip())
 
 
 def _coerce_tristate(value):
