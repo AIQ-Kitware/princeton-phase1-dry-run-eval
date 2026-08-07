@@ -1,0 +1,152 @@
+# SCALE-UP RUN -- the contextual-drag card against a current-generation model.
+#
+# Identical to cards/contextual_drag_kwdagger.yaml in every respect except the
+# model: `init_inference.model_config` is Gemma4_E2B rather than
+# Qwen3_8B_NoThinking. Same pipeline, same terminal node, same thresholds, same
+# aggregate filter, same 8 problems x n=8. A variant that changed anything else
+# would not be measuring the same claim on a new model, which is the entire
+# point of the exercise.
+#
+# It exists as a separate card only because `magnet evaluate --override` reaches
+# the SYMBOLS field, not the kwdagger matrix -- so the model cannot be swapped
+# from the command line.
+#
+# Serving: the endpoint alias in the infer-stack catalog must equal the model
+# config's model_name (`google/gemma-4-E2B-it`), which is what
+# scripts/register_scaleup_models.sh registers. Nothing here names a host, a
+# GPU, or a dtype; those are the catalog's business.
+#
+# EXPECT INCONCLUSIVE AND READ IT CAREFULLY. gpqa is the default because it sits
+# in Qwen3-8B's ambiguous zone; a 2B-effective model will be far nearer chance,
+# and `aggregate` keeps a problem only when its trajectories contain >= 2 correct
+# AND >= 2 incorrect. Everything filtered means the model-benchmark pairing is
+# wrong for measuring drag -- NOT that the pipeline failed. The pipeline
+# surviving contact with real weights is what this card is for.
+
+# Contextual Drag — failed reasoning in the prompt context degrades accuracy.
+#
+# This is the *real* contextual-drag claim card (vs. cards/contextual_drag_smoke.yaml,
+# which only verifies magnet <-> this repo wiring). It runs the full
+# clean -> aggregate -> 2F -> drag pipeline as a kwdagger DAG.
+#
+# Each stage caches on its own identity, so sweeping the aggregate filter
+# reuses the clean-round generations instead of regenerating them. The
+# expensive steps are init_inference and twof_inference; everything else is
+# cheap bookkeeping.
+#
+# Inference goes wherever CONTEXTUAL_DRAG_ENDPOINT points -- a shared vLLM
+# server, a routed deployment, or a deterministic mock. Unset, an in-process
+# vLLM engine is built as before and the run needs an idle GPU to itself.
+#
+# Default config: gpqa, Qwen3_8B_NoThinking, 8 problems x n=8.
+
+title: "Contextual Drag — failed reasoning in context degrades accuracy"
+
+description: |
+  Tests whether injecting two of the model's own previously-failed reasoning
+  trajectories into its prompt context degrades subsequent accuracy on the
+  same problems. Runs `inference run` with the clean prompt template, labels
+  trajectories via `eval math`, builds a 2F-augmented dataset using
+  `data aggregate`, runs `inference run` again with the 2F template, and
+  measures `drag = acc_clean − acc_2f` on the problems that survived
+  aggregation. Claim is `drag ≥ drag_threshold`.
+
+  Replicates the qualitative finding of "Contextual Drag: How Errors in the
+  Context Affect LLM Reasoning" (Cheng et al., 2026) on a small slice
+  runnable on consumer GPUs.
+
+version: 0.1
+
+organizations:
+  - Kitware
+
+submitter:
+  name: Contextual Drag refactor team
+  email: jon.crall@kitware.com
+
+tags:
+  - contextual-drag
+  - reasoning
+  - in-context-learning
+
+links:
+  - title: "Contextual Drag: How Errors in the Context Affect LLM Reasoning"
+    url: "https://github.com/Princeton-TA1-Team/phase1-dry-run-eval"
+    type: "publication"
+  - title: "contextual_drag implementation"
+    url: "https://github.com/Princeton-TA1-Team/phase1-dry-run-eval"
+    type: "software"
+  - title: "GPQA"
+    url: "https://huggingface.co/datasets/Idavidrein/gpqa"
+    type: "dataset"
+
+claim:
+  python: |
+    # `status`, `metrics` and `cohort` come from results.json, the DAG's
+    # declared terminal artifact.
+    n_kept = cohort['n_kept_problems']
+    drag = metrics['drag']
+
+    print(
+        f"[contextual_drag] status={status} "
+        f"acc_clean={metrics['acc_clean']} acc_2f={metrics['acc_2f']} "
+        f"drag={drag} n_kept_problems={n_kept}"
+    )
+    if detail:
+        print(f"  {detail}")
+
+    assert status != 'INCONCLUSIVE', (
+        f"Inconclusive: {detail or 'the pipeline could not produce a drag'}. "
+        f"Increase n or max_questions, or pick a benchmark in the model's "
+        f"ambiguous zone (gpqa works for Qwen3_8B; math500 is too easy and "
+        f"aime24 too hard at small samples)."
+    )
+    assert drag >= drag_threshold, (
+        f"Got drag={drag:+.3f}, expected >= {drag_threshold:+.3f} "
+        f"(acc_clean={metrics['acc_clean']:.3f}, "
+        f"acc_2f={metrics['acc_2f']:.3f}, n_kept_problems={n_kept})."
+    )
+
+symbols:
+  drag_threshold:
+    type: float
+    value: 0.05
+
+kwdagger:
+  pipeline: 'cards.pipelines.drag_pipeline()'
+  terminal_node: drag_summary
+  matrix:
+    init_inference.data_fpath: 'data/smoke/gpqa/gpqa.ds'
+    init_inference.model_config: 'Gemma4_E2B'
+    init_inference.template_path: 'prompt_templates/init_response_prompt_templates.json'
+    init_inference.template_key: 'qa_mc_prompt'
+    init_inference.task_name: 'init_response'
+    init_inference.max_questions: 8
+    init_inference.n: 8
+    init_inference.max_tokens: 2048
+    # Placement, not behaviour -- perf params, so changing them does not
+    # invalidate generations. Ignored entirely on a REST endpoint.
+    init_inference.gpu_memory_utilization: 0.85
+    init_inference.tensor_parallel_size: 1
+
+    eval_init.flatten_dataset: True
+
+    aggregate.num_true: 0
+    aggregate.num_false: 2
+    aggregate.min_num_true_sampling: 2
+    aggregate.min_num_false_sampling: 2
+
+    # model_config is wired from init_inference, so it is not restated here.
+    twof_inference.template_path: 'prompt_templates/2f_templates.json'
+    twof_inference.template_key: '2f'
+    twof_inference.task_name: 'twof'
+    twof_inference.max_questions: 0
+    twof_inference.n: 8
+    twof_inference.max_tokens: 2048
+    twof_inference.gpu_memory_utilization: 0.85
+    twof_inference.tensor_parallel_size: 1
+
+    eval_twof.response_column: 'twof_generations'
+
+    drag_summary.drag_threshold: 0.05
+    drag_summary.min_kept_problems: 1
