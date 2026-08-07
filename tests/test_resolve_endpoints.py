@@ -108,3 +108,56 @@ def test_the_card_asks_for_thinking_off_on_both_rounds():
     for node in ('init_inference', 'twof_inference'):
         assert matrix[f'{node}.thinking'] is False
         assert matrix[f'{node}.max_tokens'] == 6144
+
+
+def _claim_status(card_name, **symbols):
+    """Run a card's claim through MAGNET's real evaluator."""
+    import pathlib
+    import kwutil
+    from magnet.evaluation import Claim
+    card = kwutil.Yaml.coerce(
+        (pathlib.Path(__file__).parent.parent / 'cards' / card_name).read_text())
+    return Claim({'python': card['claim']['python']}).evaluate(dict(symbols))[0]
+
+
+@pytest.mark.parametrize('card_name', [
+    'contextual_drag_kwdagger.yaml', 'contextual_drag_scaleup.yaml'])
+def test_a_pipeline_that_produced_nothing_is_not_scored_as_falsified(card_name):
+    """
+    INCONCLUSIVE must not be reported as evidence against the claim.
+
+    MAGNET maps AssertionError -> FALSIFIED and every other exception ->
+    INCONCLUSIVE. The cards originally used `assert status != 'INCONCLUSIVE'`,
+    so a run where every problem was filtered out -- which happened on namek,
+    twice, with the same config -- was reported as refuting a TA1 team's claim
+    rather than as having failed to test it.
+    """
+    assert _claim_status(
+        card_name,
+        status='INCONCLUSIVE', detail='every problem was filtered out',
+        metrics={'drag': None, 'acc_clean': None, 'acc_2f': None},
+        cohort={'n_kept_problems': 0}, drag_threshold=0.05,
+    ) == 'INCONCLUSIVE'
+
+
+@pytest.mark.parametrize('card_name', [
+    'contextual_drag_kwdagger.yaml', 'contextual_drag_scaleup.yaml'])
+def test_a_real_drag_below_threshold_is_still_falsified(card_name):
+    """The fix must not soften an actual negative result."""
+    assert _claim_status(
+        card_name,
+        status='OK', detail='',
+        metrics={'drag': -0.0625, 'acc_clean': 0.4375, 'acc_2f': 0.5},
+        cohort={'n_kept_problems': 2}, drag_threshold=0.05,
+    ) == 'FALSIFIED'
+
+
+@pytest.mark.parametrize('card_name', [
+    'contextual_drag_kwdagger.yaml', 'contextual_drag_scaleup.yaml'])
+def test_a_drag_above_threshold_verifies(card_name):
+    assert _claim_status(
+        card_name,
+        status='OK', detail='',
+        metrics={'drag': 0.20, 'acc_clean': 0.6, 'acc_2f': 0.4},
+        cohort={'n_kept_problems': 12}, drag_threshold=0.05,
+    ) == 'VERIFIED'

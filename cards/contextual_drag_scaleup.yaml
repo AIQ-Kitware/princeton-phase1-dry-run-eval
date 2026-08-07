@@ -116,12 +116,17 @@ claim:
     if detail:
         print(f"  {detail}")
 
-    assert status != 'INCONCLUSIVE', (
-        f"Inconclusive: {detail or 'the pipeline could not produce a drag'}. "
-        f"Increase n or max_questions, or pick a benchmark in the model's "
-        f"ambiguous zone (gpqa works for Qwen3_8B; math500 is too easy and "
-        f"aime24 too hard at small samples)."
-    )
+    # Deliberately NOT an assert. MAGNET maps AssertionError -> FALSIFIED and
+    # every other exception -> INCONCLUSIVE. Asserting here would score "the
+    # pipeline could not produce a drag" as "the claim is false" -- reporting
+    # a TA1 team's claim as refuted by a run that never tested it.
+    if status == 'INCONCLUSIVE':
+        raise RuntimeError(
+            f"Inconclusive: {detail or 'the pipeline could not produce a drag'}. "
+            f"Increase n or max_questions, or pick a benchmark in the model's "
+            f"ambiguous zone (gpqa works for Qwen3_8B; math500 is too easy and "
+            f"aime24 too hard at small samples)."
+        )
     assert drag >= drag_threshold, (
         f"Got drag={drag:+.3f}, expected >= {drag_threshold:+.3f} "
         f"(acc_clean={metrics['acc_clean']:.3f}, "
