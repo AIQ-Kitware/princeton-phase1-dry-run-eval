@@ -48,6 +48,13 @@ class CDInferenceCLI(scfg.DataConfig):
         'init_response', help='Names the generated columns.',
         tags=['algo_param'])
 
+    thinking = scfg.Value(
+        None, help=(
+            'Whether the chat template renders a thinking preamble: True, '
+            'False, or None to leave it to contextual_drag (which defaults '
+            'to on). Applied at prompt-render time, not as a sampling param.'),
+        tags=['algo_param'])
+
     max_questions = scfg.Value(
         8, type=int, help='Cap on dataset rows (0 = whole dataset).',
         tags=['algo_param'])
@@ -90,6 +97,18 @@ class CDInferenceCLI(scfg.DataConfig):
         if n_rows is not None and n_rows > 0:
             max_questions = min(max_questions, n_rows) if max_questions else n_rows
 
+        # contextual_drag reads --enable_thinking / --disable_thinking as a
+        # tri-state: neither flag means "unset", which its prescan turns into
+        # thinking ON. Passing neither is therefore not neutral, and this node
+        # passed neither -- so an alias named `Qwen3_8B_NoThinking` produced
+        # exactly the same prompts as `Qwen3_8B_Thinking`. Nothing downstream
+        # of the alias name ever acted on it.
+        thinking = _coerce_tristate(config.thinking)
+        thinking_args = []
+        if thinking is not None:
+            thinking_args = ['--enable_thinking' if thinking
+                             else '--disable_thinking']
+
         run_contextual_drag([
             'inference', 'run',
             '--model_config', config.model_config,
@@ -104,13 +123,48 @@ class CDInferenceCLI(scfg.DataConfig):
             '--tensor_parallel_size', config.tensor_parallel_size,
             '--gpu_memory_utilization', config.gpu_memory_utilization,
             '--max_tokens', config.max_tokens,
-        ])
+        ] + thinking_args)
 
         completions = first_match(output_dir, 'completions.jsonl')
         write_manifest(manifest_fpath, dataset_fpath=dataset_fpath,
                        n_rows=max_questions, completions_fpath=completions,
                        output_dir=output_dir, task_name=config.task_name,
                        skipped=False)
+
+
+def _coerce_tristate(value):
+    """
+    Normalize a True/False/unset parameter that may arrive as a string.
+
+    kwdagger renders matrix entries into a job script as ``--thinking=False``,
+    so the value makes a round trip through the shell. scriptconfig's smartcast
+    turns that back into a bool today, but it is one parse rule away from
+    arriving as the string ``'False'`` -- which is truthy, and would silently
+    enable thinking on every card that asked for it to be off. Since that is
+    the precise failure this parameter exists to fix, normalize rather than
+    trust a truth test.
+
+    Args:
+        value: bool, None, or a string spelling of either.
+
+    Returns:
+        bool | None
+
+    Example:
+        >>> [_coerce_tristate(v) for v in [True, 'False', 'none', None, '']]
+        [True, False, None, None, None]
+    """
+    if isinstance(value, bool) or value is None:
+        return value
+    text = str(value).strip().lower()
+    if text in {'', 'none', 'null', 'auto', 'unset'}:
+        return None
+    if text in {'1', 'true', 'yes', 'on'}:
+        return True
+    if text in {'0', 'false', 'no', 'off'}:
+        return False
+    raise ValueError(
+        f'thinking={value!r} is not True, False, or unset')
 
 
 def _resolve_dataset(data_fpath):

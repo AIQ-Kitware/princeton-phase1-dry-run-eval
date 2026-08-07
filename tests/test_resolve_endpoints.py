@@ -78,3 +78,33 @@ def test_lookup_does_not_import_contextual_drag(monkeypatch):
 
     monkeypatch.setattr(builtins, '__import__', guard)
     assert node.resolve_endpoints() == [blocks[alias]['model_name']]
+
+
+def test_thinking_tristate_reaches_the_cli_as_a_flag():
+    """
+    `thinking` must round-trip from the card matrix to a contextual_drag flag.
+
+    Passing neither --enable_thinking nor --disable_thinking is NOT neutral:
+    contextual_drag's tri-state resolves "unset" to thinking ON. That is why
+    the Qwen3_8B_NoThinking alias produced the same prompts as _Thinking.
+    """
+    from cards.nodes.cd_inference import CDInferenceCLI, _coerce_tristate
+
+    cases = [(['--thinking=False'], False), (['--thinking=True'], True),
+             ([], None)]
+    for argv, expected in cases:
+        config = CDInferenceCLI.cli(argv=argv, strict=True, verbose=False)
+        assert _coerce_tristate(config.thinking) is expected
+
+
+def test_the_card_asks_for_thinking_off_on_both_rounds():
+    """A budget of 6144 tokens is not a fix if a preamble still eats it."""
+    import pathlib
+    import kwutil
+    card = kwutil.Yaml.coerce(
+        (pathlib.Path(__file__).parent.parent
+         / 'cards/contextual_drag_scaleup.yaml').read_text())
+    matrix = card['kwdagger']['matrix']
+    for node in ('init_inference', 'twof_inference'):
+        assert matrix[f'{node}.thinking'] is False
+        assert matrix[f'{node}.max_tokens'] == 6144

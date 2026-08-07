@@ -1,11 +1,29 @@
 # SCALE-UP RUN -- the contextual-drag card against a current-generation model.
 #
-# Identical to cards/contextual_drag_kwdagger.yaml in every respect except the
-# model: `init_inference.model_config` is Gemma4_E2B rather than
-# Qwen3_8B_NoThinking. Same pipeline, same terminal node, same thresholds, same
-# aggregate filter, same 8 problems x n=8. A variant that changed anything else
-# would not be measuring the same claim on a new model, which is the entire
-# point of the exercise.
+# Same pipeline, same terminal node, same thresholds, same aggregate filter as
+# cards/contextual_drag_kwdagger.yaml. What differs is the model and the three
+# knobs the first run against it proved were wrong.
+#
+# THE FIRST RUN (namek, 2026-08-06, Gemma 4 E2B) settled the plumbing and
+# nothing else: 53 of 64 clean-round generations hit `length` at max_tokens
+# 2048, and 100% of those were unparsable, against 0% of the 11 that finished.
+# Two problems survived aggregation, so the reported drag of -0.0625 was one
+# trajectory out of sixteen. The verdict was an artifact of the token budget.
+# Hence:
+#
+#   thinking        Explicitly False. Passing NEITHER --enable_thinking nor
+#                   --disable_thinking is not neutral: contextual_drag's
+#                   tri-state turns "unset" into thinking ON. cd_inference
+#                   passed neither, which is why `Qwen3_8B_NoThinking` and
+#                   `Qwen3_8B_Thinking` produced identical prompts. Now stated.
+#   max_tokens      6144, not 2048. Room for a real answer even with a
+#                   preamble; the endpoint's max_model_len is 8192.
+#   max_questions   32, not 8. `aggregate` keeps a problem only when its
+#                   trajectories contain enough of BOTH labels, and at 8 it
+#                   kept 2. No threshold comparison means anything at n=2.
+#
+# These make the card a different measurement from the Qwen one, so the two are
+# not directly comparable -- but the Qwen one was measuring truncation too.
 #
 # It exists as a separate card only because `magnet evaluate --override` reaches
 # the SYMBOLS field, not the kwdagger matrix -- so the model cannot be swapped
@@ -16,12 +34,15 @@
 # scripts/register_scaleup_models.sh registers. Nothing here names a host, a
 # GPU, or a dtype; those are the catalog's business.
 #
-# EXPECT INCONCLUSIVE AND READ IT CAREFULLY. gpqa is the default because it sits
-# in Qwen3-8B's ambiguous zone; a 2B-effective model will be far nearer chance,
-# and `aggregate` keeps a problem only when its trajectories contain >= 2 correct
-# AND >= 2 incorrect. Everything filtered means the model-benchmark pairing is
-# wrong for measuring drag -- NOT that the pipeline failed. The pipeline
-# surviving contact with real weights is what this card is for.
+# READ THE OUTCOME CAREFULLY. gpqa is the default because it sits in Qwen3-8B's
+# ambiguous zone; a 2B-effective model will be far nearer chance, and `aggregate`
+# keeps a problem only when its trajectories contain >= 2 correct AND >= 2
+# incorrect. Everything filtered means the model-benchmark pairing is wrong for
+# measuring drag -- NOT that the pipeline failed.
+#
+# Before reading any drag number, check the finish-reason table in the eval
+# node's output. If `length` is a large fraction, the run measured the token
+# budget rather than the model, and the drag is meaningless however it came out.
 
 # Contextual Drag — failed reasoning in the prompt context degrades accuracy.
 #
@@ -121,9 +142,10 @@ kwdagger:
     init_inference.template_path: 'prompt_templates/init_response_prompt_templates.json'
     init_inference.template_key: 'qa_mc_prompt'
     init_inference.task_name: 'init_response'
-    init_inference.max_questions: 8
+    init_inference.max_questions: 32
     init_inference.n: 8
-    init_inference.max_tokens: 2048
+    init_inference.max_tokens: 6144
+    init_inference.thinking: False
     # Placement, not behaviour -- perf params, so changing them does not
     # invalidate generations. Ignored entirely on a REST endpoint.
     init_inference.gpu_memory_utilization: 0.85
@@ -142,7 +164,8 @@ kwdagger:
     twof_inference.task_name: 'twof'
     twof_inference.max_questions: 0
     twof_inference.n: 8
-    twof_inference.max_tokens: 2048
+    twof_inference.max_tokens: 6144
+    twof_inference.thinking: False
     twof_inference.gpu_memory_utilization: 0.85
     twof_inference.tensor_parallel_size: 1
 
