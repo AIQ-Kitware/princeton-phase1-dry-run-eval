@@ -4,6 +4,16 @@ One inference round: render prompts and generate responses.
 Used twice in the drag pipeline -- once on the clean prompt and once on
 the 2F-augmented prompt -- as two nodes sharing this executable.
 
+``model_params_fpath`` is an ALGO param, and adding it MOVED EVERY EXISTING
+CARD'S NODE-ID HASH -- ``init_inference`` on the scale-up card went from
+``is88uqzijfj4`` to ``a8zhr41w051o``. Generations cached under the old ids are
+not reused, so the first run of any pre-existing card after this change
+regenerates. That is a real cost, paid once, and it is the correct one: the
+file the alias is looked up in determines which weights answer, so two runs
+that disagree about it are not the same measurement and must not share a cache
+entry. Demoting it to a perf param would keep the hashes still by lying about
+what it does.
+
 ``gpu_memory_utilization`` and ``tensor_parallel_size`` are perf params,
 not algo params. They change how the work is placed on hardware, never
 what is produced, so they must not enter the node's identity: raising the
@@ -30,6 +40,19 @@ class CDInferenceCLI(scfg.DataConfig):
     model_config = scfg.Value(
         'Qwen3_8B_NoThinking',
         help='Alias from eval_models_params.json.',
+        tags=['algo_param'])
+
+    model_params_fpath = scfg.Value(
+        None, help=(
+            'Override the eval_models_params.json the alias is looked up in. '
+            'None (the default) uses the packaged resource, so existing cards '
+            'are unaffected. This completes a seam the pipeline already had: '
+            '`_model_params_fpath` in cards/pipelines.py has always read this '
+            'key off the node config to resolve the endpoint, but the node '
+            'never declared it, so the override could not be set from a card '
+            'and the scheduler and the node could not be pointed at the same '
+            'file. Forwarded to `inference run --config_path`, so the alias '
+            'resolves identically on both sides.'),
         tags=['algo_param'])
 
     data_fpath = scfg.Value(
@@ -109,6 +132,24 @@ class CDInferenceCLI(scfg.DataConfig):
             thinking_args = ['--enable_thinking' if thinking
                              else '--disable_thinking']
 
+        # Only passed when set: `inference run` defaults config_path to None,
+        # meaning the packaged resource, and a '--config_path' with an empty
+        # value would be a path of '' rather than a default.
+        #
+        # _coerce_optional_path, not a truth test, and for the same reason
+        # _coerce_tristate exists below. kwdagger renders EVERY declared param
+        # into the job script, so a card that never mentions this one still
+        # gets `--model_params_fpath=None`, which makes a round trip through
+        # the shell. scriptconfig's smartcast turns that back into None today
+        # -- verified -- but the string 'None' is truthy, so if that parse rule
+        # ever changes, a plain truth test sends `--config_path None` and every
+        # card that never asked for an override dies opening a file called
+        # None. Normalizing costs nothing and does not depend on the rule.
+        params_fpath = _coerce_optional_path(config.model_params_fpath)
+        params_args = []
+        if params_fpath is not None:
+            params_args = ['--config_path', params_fpath]
+
         run_contextual_drag([
             'inference', 'run',
             '--model_config', config.model_config,
@@ -123,7 +164,7 @@ class CDInferenceCLI(scfg.DataConfig):
             '--tensor_parallel_size', config.tensor_parallel_size,
             '--gpu_memory_utilization', config.gpu_memory_utilization,
             '--max_tokens', config.max_tokens,
-        ] + thinking_args)
+        ] + params_args + thinking_args)
 
         completions = first_match(output_dir, 'completions.jsonl')
 
@@ -172,6 +213,36 @@ def _n_completions(fpath):
         return 0
     with open(path) as file:
         return sum(1 for line in file if line.strip())
+
+
+def _coerce_optional_path(value):
+    """
+    Normalize an optional path that may arrive as the string ``'None'``.
+
+    kwdagger renders every declared parameter into the generated job script, so
+    a card that does not set this one still produces
+    ``--model_params_fpath=None``. scriptconfig currently smartcasts that back
+    to ``None``, but that is a parse rule rather than a guarantee, and the
+    string ``'None'`` is truthy -- under any rule that preserved it, a plain
+    truth test would send ``--config_path None`` on every card that never asked
+    for an override. Also normalizes the empty string, which no rule converts.
+
+    Args:
+        value: a path, None, or a string spelling of either.
+
+    Returns:
+        str | None
+
+    Example:
+        >>> [_coerce_optional_path(v) for v in [None, 'None', '', 'none', '/a/b']]
+        [None, None, None, None, '/a/b']
+    """
+    if value is None:
+        return None
+    text = str(value).strip()
+    if text.lower() in {'', 'none', 'null', 'unset'}:
+        return None
+    return text
 
 
 def _coerce_tristate(value):
