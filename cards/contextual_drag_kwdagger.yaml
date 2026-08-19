@@ -57,8 +57,10 @@ links:
 
 claim:
   python: |
+    # The result node's values, unqualified into this namespace.
+    globals().update(metrics.drag_summary.as_dict())
     # `status`, `metrics` and `cohort` come from results.json, the DAG's
-    # declared terminal artifact.
+    # declared result artifact.
     n_kept = cohort['n_kept_problems']
     drag = metrics['drag']
 
@@ -94,7 +96,7 @@ symbols:
 
 kwdagger:
   pipeline: 'cards.pipelines.drag_pipeline()'
-  terminal_node: drag_summary
+  result_node: drag_summary
   matrix:
     init_inference.data_fpath: 'data/smoke/gpqa/gpqa.ds'
     init_inference.model_config: 'Qwen3_8B_NoThinking'

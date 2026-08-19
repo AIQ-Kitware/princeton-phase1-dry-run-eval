@@ -1,6 +1,6 @@
 # SCALE-UP RUN -- the contextual-drag card against a current-generation model.
 #
-# Same pipeline, same terminal node, same thresholds, same aggregate filter as
+# Same pipeline, same result node, same thresholds, same aggregate filter as
 # cards/contextual_drag_kwdagger.yaml. What differs is the model and the three
 # knobs the first run against it proved were wrong.
 #
@@ -103,8 +103,10 @@ links:
 
 claim:
   python: |
+    # The result node's values, unqualified into this namespace.
+    globals().update(metrics.drag_summary.as_dict())
     # `status`, `metrics` and `cohort` come from results.json, the DAG's
-    # declared terminal artifact.
+    # declared result artifact.
     n_kept = cohort['n_kept_problems']
     drag = metrics['drag']
 
@@ -140,7 +142,7 @@ symbols:
 
 kwdagger:
   pipeline: 'cards.pipelines.drag_pipeline()'
-  terminal_node: drag_summary
+  result_node: drag_summary
   matrix:
     init_inference.data_fpath: 'data/smoke/gpqa/gpqa.ds'
     init_inference.model_config: 'Gemma4_E2B'
