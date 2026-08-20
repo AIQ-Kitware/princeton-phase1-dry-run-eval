@@ -100,9 +100,10 @@ class _Inference(LeasedProcessNode):
 
     The card names a *model config* (``Qwen3_8B_NoThinking``), not a served
     model, so the endpoint alias has to be looked up rather than read
-    straight off a parameter. The alias is the config's ``model_name`` --
-    the same string the REST engine sends as ``model`` -- so an endpoint
-    that serves this card is one the card can already address.
+    straight off a parameter. The alias is the config's ``served_model_name``
+    when it has one, else ``model_name`` -- the same string the REST engine
+    sends as ``model`` -- so an endpoint that serves this card is one the card
+    can already address.
     """
 
     executable = 'python -m cards.nodes.cd_inference'
@@ -123,7 +124,11 @@ class _Inference(LeasedProcessNode):
             # file* is different and does raise, above -- that one is never
             # the card's fault.
             return []
-        served = block.get('model_name')
+        # served_model_name first: `model_name` is the HuggingFace repo id the
+        # tokenizer is loaded from, and it doubles as the endpoint alias only
+        # when the endpoint was named after its repo. Leasing the repo id from
+        # a slug-named endpoint fails at acquire with "unknown endpoint".
+        served = block.get('served_model_name') or block.get('model_name')
         return [served] if served else []
 
 
