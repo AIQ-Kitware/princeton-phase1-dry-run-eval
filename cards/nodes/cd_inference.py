@@ -119,6 +119,19 @@ class CDInferenceCLI(scfg.DataConfig):
         max_questions = int(config.max_questions)
         if n_rows is not None and n_rows > 0:
             max_questions = min(max_questions, n_rows) if max_questions else n_rows
+        elif not max_questions:
+            # `0` means "all" only when n_rows is known, and _resolve_dataset
+            # returns None for a raw dataset directory -- so on a first round
+            # 0 means zero. Generating nothing then wrote a manifest reporting
+            # success, because the every-request-failed check below is gated on
+            # max_questions > 0. Silence is the wrong answer either way: say
+            # the count is needed rather than run an empty round.
+            raise SystemExit(
+                f'{config.task_name}: max_questions=0 means "all rows", but '
+                f'the row count of {config.data_fpath} is unknown (a dataset '
+                f'directory does not report one; only an upstream manifest '
+                f'does). Give max_questions an explicit number for this round.'
+            )
 
         # contextual_drag reads --enable_thinking / --disable_thinking as a
         # tri-state: neither flag means "unset", which its prescan turns into
