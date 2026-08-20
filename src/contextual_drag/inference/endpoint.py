@@ -117,15 +117,25 @@ def endpoint_from_env(model_config: dict) -> Optional[EndpointConfig]:
     )
     if not base_url:
         return None
+    # `model_name` is the HuggingFace repo id: the tokenizer is loaded from it
+    # to render prompts locally. The name a served endpoint answers to need not
+    # match -- infer-stack aliases are often slugs -- so a config may carry
+    # `served_model_name` for the request while `model_name` stays the repo id.
+    #
+    # Per-config rather than only the env var, because a card can sweep
+    # model_config over several models in one run and a single environment
+    # variable cannot differ between them. The env var still wins when set, so
+    # a one-off override of the whole run keeps working.
     model = (
         os.environ.get(ENDPOINT_MODEL_ENVVAR, '').strip()
+        or model_config.get('served_model_name')
         or model_config.get('model_name')
     )
     if not model:
         raise RuntimeError(
             f'{ENDPOINT_ENVVAR} is set but no model name is available; set '
-            f'{ENDPOINT_MODEL_ENVVAR} or give the model config a '
-            f'"model_name".'
+            f'{ENDPOINT_MODEL_ENVVAR}, or give the model config a '
+            f'"served_model_name" or "model_name".'
         )
     return EndpointConfig(
         base_url=base_url,
