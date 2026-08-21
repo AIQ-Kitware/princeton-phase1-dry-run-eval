@@ -104,6 +104,21 @@ class CDInferenceCLI(scfg.DataConfig):
 
         manifest_fpath = Path(config.manifest_fpath).resolve()
         output_dir = manifest_fpath.parent / 'inference'
+        # The manifest is this node's done-marker: the scheduler skips a node
+        # whose manifest exists, so if we are running, the previous attempt did
+        # not finish. Its partial output must go. `inference run` APPENDS to
+        # completions.jsonl, so a killed run left 4 rows that the retry added
+        # 128 more to -- 132 rows for 128 problems, 2 of them duplicated.
+        # Grading then died on ragged arrays, three hours later and nowhere
+        # near the cause:
+        #
+        #   ValueError: setting an array element with a sequence ... (132,)
+        if output_dir.exists() and not manifest_fpath.exists():
+            stale = [f for f in output_dir.rglob('*') if f.is_file()]
+            if stale:
+                print(f'[{config.task_name}] discarding {len(stale)} file(s) '
+                      f'from an unfinished earlier attempt in {output_dir}')
+                shutil.rmtree(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
         dataset_fpath, n_rows = _resolve_dataset(config.data_fpath)
