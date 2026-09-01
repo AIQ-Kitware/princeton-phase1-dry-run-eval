@@ -40,6 +40,7 @@ from cards.nodes.cd_drag_summary import CDDragSummaryCLI
 from cards.nodes.cd_eval import CDEvalCLI
 from cards.nodes.cd_inference import CDInferenceCLI
 from cards.nodes.cd_postprocess import CDPostprocessCLI
+from cards.nodes._load_result import load_node_result
 
 __all__ = ['drag_pipeline']
 
@@ -109,6 +110,12 @@ class _Inference(LeasedProcessNode):
     executable = 'python -m cards.nodes.cd_inference'
     params = CDInferenceCLI
 
+    def load_result(self, node_dpath):
+        # kwdagger has no generic loader for a Python ProcessNode;
+        # without this, aggregate raises "'dict' object has no
+        # attribute 'query_keys'" after every node has already run.
+        return load_node_result(self, node_dpath)
+
     def resolve_endpoints(self):
         config = self.final_config or {}
         alias = config.get('model_config')
@@ -148,12 +155,24 @@ class _EvalInit(ContainerProcessNode):
     executable = 'python -m cards.nodes.cd_eval'
     params = CDEvalCLI
 
+    def load_result(self, node_dpath):
+        # kwdagger has no generic loader for a Python ProcessNode;
+        # without this, aggregate raises "'dict' object has no
+        # attribute 'query_keys'" after every node has already run.
+        return load_node_result(self, node_dpath)
+
 
 class _EvalTwof(ContainerProcessNode):
     """Score the 2F round."""
     name = 'eval_twof'
     executable = 'python -m cards.nodes.cd_eval'
     params = CDEvalCLI
+
+    def load_result(self, node_dpath):
+        # kwdagger has no generic loader for a Python ProcessNode;
+        # without this, aggregate raises "'dict' object has no
+        # attribute 'query_keys'" after every node has already run.
+        return load_node_result(self, node_dpath)
 
 
 class _Postprocess(ContainerProcessNode):
@@ -162,6 +181,12 @@ class _Postprocess(ContainerProcessNode):
     executable = 'python -m cards.nodes.cd_postprocess'
     params = CDPostprocessCLI
 
+    def load_result(self, node_dpath):
+        # kwdagger has no generic loader for a Python ProcessNode;
+        # without this, aggregate raises "'dict' object has no
+        # attribute 'query_keys'" after every node has already run.
+        return load_node_result(self, node_dpath)
+
 
 class _Aggregate(ContainerProcessNode):
     """Filter problems and build the 2F dataset."""
@@ -169,12 +194,24 @@ class _Aggregate(ContainerProcessNode):
     executable = 'python -m cards.nodes.cd_aggregate'
     params = CDAggregateCLI
 
+    def load_result(self, node_dpath):
+        # kwdagger has no generic loader for a Python ProcessNode;
+        # without this, aggregate raises "'dict' object has no
+        # attribute 'query_keys'" after every node has already run.
+        return load_node_result(self, node_dpath)
+
 
 class _DragSummary(ContainerProcessNode):
     """Compute the drag and emit the terminal artifact."""
     name = 'drag_summary'
     executable = 'python -m cards.nodes.cd_drag_summary'
     params = CDDragSummaryCLI
+
+    def load_result(self, node_dpath):
+        # kwdagger has no generic loader for a Python ProcessNode;
+        # without this, aggregate raises "'dict' object has no
+        # attribute 'query_keys'" after every node has already run.
+        return load_node_result(self, node_dpath)
 
 
 def drag_pipeline():

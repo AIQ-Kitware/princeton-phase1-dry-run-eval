@@ -25,6 +25,10 @@ when generation goes through a REST endpoint.
 
 from __future__ import annotations
 
+# `shutil` is used on the resume path, to discard a partial attempt before
+# retrying. It fires only when output_dir exists without a manifest, which is
+# why a first run never reaches it and the missing import went unnoticed.
+import shutil
 from pathlib import Path
 
 import scriptconfig as scfg
