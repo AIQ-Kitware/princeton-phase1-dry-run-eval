@@ -77,6 +77,7 @@ links:
 # that way until the card computes the bound.
 theory:
   indexes:
+    - ../theory/indexes/teams.yaml
     - ../theory/indexes/hygiene.yaml
     - ../theory/indexes/conjectures.yaml
 
@@ -84,6 +85,17 @@ theory:
     - nodes/cd_drag_summary.py
 
   links:
+    - relation: tests
+      ref: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
+      note: >
+        The pipeline computes exactly this: both accuracies are means over the
+        same surviving problem set, so the drag is a mean of a per-problem
+        difference. Proved, and it is what makes the comparison legitimate.
+    - relation: motivates
+      ref: AIQ.Teams.ContextualDrag.SampleSufficient
+      note: >
+        The condition that would make a measured drag evidence about the
+        population. The card does not compute it; see `hn_sufficient` above.
     # `motivates`, not `tests`: the conjecture is open (`sorry`), and a motivates
     # link deliberately creates no premise-coverage obligation.
     - relation: motivates

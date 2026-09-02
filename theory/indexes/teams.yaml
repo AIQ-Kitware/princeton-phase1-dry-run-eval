@@ -1,0 +1,120 @@
+# Small per-team formalizations of what each card claims.
+#
+# These exist for the four teams with no formalization repository of their own.
+# The other four (GaTech, UCLA, JHU, SRI) have card-facing capstones in their
+# own Lean developments, indexed separately.
+#
+# Everything here is PROVED -- `theory/lean/check.sh` reports zero `sorry` from
+# `theory/lean/`, unlike `Conjectures/` where a sorry is the expected
+# output. The content is deliberately in the HYPOTHESES rather than in the
+# conclusions: each theorem is a small, true statement whose premises are the
+# things the card does not check. `brittleFraction_mem_Icc::hle` and
+# `dist_iterate_le::hf` are the two worth looking at.
+
+schema_version: 1
+
+formalization:
+  system: lean4
+
+entries:
+  # ---- Princeton -------------------------------------------------------
+  - id: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
+    kind: theorem
+    declaration: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
+    source_path: theory/lean/ContextualDrag.lean
+    statement: >
+      The drag equals the mean of the per-problem difference, because both
+      accuracies are means over the same problem set. This is what makes the
+      two accuracies comparable at all; measured over different problem sets
+      the drag would be a difference of independent means and the pairing
+      premise would be false. PROVED.
+
+  - id: AIQ.Teams.ContextualDrag.SampleSufficient
+    kind: definition
+    declaration: AIQ.Teams.ContextualDrag.SampleSufficient
+    source_path: theory/lean/ContextualDrag.lean
+    statement: >
+      The condition under which a measured drag is evidence about the
+      population rather than about this sample: the problem set is at least the
+      Hoeffding size for the asserted tolerance and confidence. The card does
+      not compute it.
+
+  # ---- UMD -------------------------------------------------------------
+  - id: AIQ.Teams.BrittleKnowledge.brittleFraction_mem_Icc
+    kind: theorem
+    declaration: AIQ.Teams.BrittleKnowledge.brittleFraction_mem_Icc
+    source_path: theory/lean/BrittleKnowledge.lean
+    statement: >
+      The brittle fraction lies in [0, 1] -- provided the strict count does not
+      exceed the any count. PROVED, and conditional on exactly the invariant the
+      card does not enforce: the two counts are read from different columns, so
+      nothing in the pipeline orders them.
+    premises:
+      - id: hpos
+        type: 'hpos : 0 < anyCorrect'
+        statement: some answer was correct on at least one phrasing
+      - id: hle
+        type: 'hle : strictCorrect <= anyCorrect'
+        statement: >
+          right-on-every-phrasing never exceeds right-on-at-least-one. True of
+          the quantities as defined, unchecked as computed
+      - id: hnonneg
+        type: 'hnonneg : 0 <= strictCorrect'
+        statement: the strict count is a count
+
+  - id: AIQ.Teams.BrittleKnowledge.brittleFraction_neg_of_gt
+    kind: theorem
+    declaration: AIQ.Teams.BrittleKnowledge.brittleFraction_neg_of_gt
+    source_path: theory/lean/BrittleKnowledge.lean
+    statement: >
+      If the ordering invariant fails the fraction is negative. PROVED. This is
+      the failure mode a card reporting a negative brittleness as a verdict has
+      hit, and it is detectable in one pass over the results table.
+
+  # ---- MIT -------------------------------------------------------------
+  - id: AIQ.Teams.CircuitOverlap.jaccard_le_one
+    kind: theorem
+    declaration: AIQ.Teams.CircuitOverlap.jaccard_le_one
+    source_path: theory/lean/CircuitOverlap.lean
+    statement: >
+      Circuit overlap is bounded by one, for any two circuits including empty
+      ones. PROVED. Together with jaccard_comm and jaccard_self this is the
+      whole of what is established about the overlap; whether it is a property
+      of the FUNCTION rather than the parameterization is open and is stated in
+      AIQ.Conjectures.Circuits.
+
+  - id: AIQ.Teams.CircuitOverlap.jaccard_self
+    kind: theorem
+    declaration: AIQ.Teams.CircuitOverlap.jaccard_self
+    source_path: theory/lean/CircuitOverlap.lean
+    statement: >
+      A nonempty circuit overlaps itself completely. PROVED.
+    premises:
+      - id: hA
+        type: 'hA : A.Nonempty'
+        statement: the circuit is nonempty, which top_k with k > 0 guarantees
+
+  # ---- Incubilate ------------------------------------------------------
+  - id: AIQ.Teams.OperadicConsistency.dist_iterate_le
+    kind: theorem
+    declaration: AIQ.Teams.OperadicConsistency.dist_iterate_le
+    source_path: theory/lean/OperadicConsistency.lean
+    statement: >
+      Iterating a non-expansive composition step any number of times leaves two
+      inputs no further apart than they began -- depth does not amplify error.
+      PROVED, and the entire content is in the hypothesis: nothing establishes
+      or measures that the composition step is non-expansive.
+    premises:
+      - id: hf
+        type: 'hf : NonExpansive f'
+        statement: >
+          the composition step never separates two inputs further than they
+          already were. The pivotal unmeasured quantity for compositional
+          evaluation; settled by perturbing sub-answers and taking the ratio
+
+  - id: AIQ.Teams.OperadicConsistency.nonExpansive_comp
+    kind: theorem
+    declaration: AIQ.Teams.OperadicConsistency.nonExpansive_comp
+    source_path: theory/lean/OperadicConsistency.lean
+    statement: >
+      Composing two non-expansive steps is non-expansive. PROVED.
