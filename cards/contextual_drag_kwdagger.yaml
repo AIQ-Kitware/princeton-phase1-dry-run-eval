@@ -72,7 +72,7 @@ links:
 # with the code instead of rotting the way a line-numbered reference would.
 #
 # The unaccounted premise this is meant to surface is `hn_sufficient`: a paired
-# Hoeffding bound at eps = delta = 0.05 needs n >= 738 kept problems, and runs to
+# Hoeffding bound at eps = delta = 0.05 needs n >= 2952 kept problems, and runs to
 # date are far below it. It is `assumes`, not `satisfies`, and it should stay
 # that way until the card computes the bound.
 theory:
@@ -85,6 +85,20 @@ theory:
     - nodes/cd_drag_summary.py
 
   links:
+    - relation: motivates
+      ref: AIQ.Teams.ContextualDrag.abs_measuredDrag_sub_lt_of_hoeffdingSize_le
+      note: >
+        The statement that would let this card DISCHARGE `hn_sufficient` instead
+        of assuming it: on a large enough paired sample the measured drag is
+        within eps of the population drag with probability 1 - delta. Proved. Its
+        hypotheses are the remaining work -- the card's problem set is filtered on
+        the model's own failures, so independence and a common mean are not free.
+    - relation: motivates
+      ref: AIQ.Teams.ContextualDrag.hoeffdingSize_two_eq
+      note: >
+        Why the number in this card is 2952 and not 738: the sample size scales
+        with the square of the WIDTH of the averaged quantity, and a difference of
+        two accuracies has width 2.
     - relation: tests
       ref: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
       note: >
@@ -102,8 +116,9 @@ theory:
     - relation: motivates
       ref: AIQ.Conjectures.CertificationFloor.baa_phase1_requires_queries
       note: >
-        The card asserts a 0.05 effect from a sample far below the 738 that
-        Hoeffding requires. What the smallest sufficient n actually is, is the
+        The card asserts a 0.05 effect from a sample far below the 2952 that
+        Hoeffding requires of a PAIRED difference. What the smallest sufficient n
+        actually is, is the
         open question this card is evidence for rather than a test of.
 
 claim:

@@ -3,10 +3,8 @@
 # Every theorem here is PROVED -- there is no `sorry` in the Lean file this
 # indexes, and it typechecks against Mathlib.
 #
-# The statements are small on purpose, and the content is in the HYPOTHESES
-# rather than the conclusions: each is a modest true claim whose premises are
-# the things the card does not check. That is what the formalization is for.
-# The card's own assertion is an empirical matter and is not a theorem.
+# The content is deliberately in the HYPOTHESES as much as the conclusions:
+# where a premise is not discharged, that is the finding.
 
 schema_version: 1
 formalization:
@@ -17,27 +15,51 @@ entries:
   declaration: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
   source_path: theory/lean/ContextualDrag.lean
   statement: 'The drag equals the mean of the per-problem difference, because both accuracies
-    are means over the same problem set. This is what makes the two accuracies comparable
-    at all; measured over different problem sets the drag would be a difference of independent
-    means and the pairing premise would be false. PROVED.
+    are means over the same problem set. PROVED. This is what makes the two accuracies comparable
+    at all.
 
     '
 - id: AIQ.Teams.ContextualDrag.unpaired_difference_of_no_effect
   kind: theorem
   declaration: AIQ.Teams.ContextualDrag.unpaired_difference_of_no_effect
   source_path: theory/lean/ContextualDrag.lean
-  statement: 'An explicit witness showing that comparing two averages taken over DIFFERENT
-    problem sets can report a nonzero difference when the per-problem effect is identically
-    zero. PROVED. This is why the clean accuracy is restricted to the problems that survived
-    the filter, and why the pairing identity above is load-bearing rather than pedantic.
+  statement: 'An explicit witness that comparing averages over DIFFERENT problem sets can
+    report a nonzero difference when the per-problem effect is identically zero. PROVED. Why
+    the clean accuracy is restricted to the survivors.
 
     '
-- id: AIQ.Teams.ContextualDrag.hoeffdingSize
-  kind: definition
-  declaration: AIQ.Teams.ContextualDrag.hoeffdingSize
+- id: AIQ.Teams.ContextualDrag.abs_measuredDrag_sub_lt_of_hoeffdingSize_le
+  kind: theorem
+  declaration: AIQ.Teams.ContextualDrag.abs_measuredDrag_sub_lt_of_hoeffdingSize_le
   source_path: theory/lean/ContextualDrag.lean
-  statement: 'The paired sample size for tolerance eps at confidence 1 - delta; about 738
-    at eps = delta = 0.05. Defined as a quantity only -- the file states plainly that it is
-    never connected to a confidence claim, because there is no probability space in it.
+  statement: 'A full measure-theoretic Hoeffding bound for the drag: on a paired sample of
+    at least `hoeffdingSize (b - a) eps delta` problems, the measured drag is within eps of
+    the POPULATION drag with probability at least 1 - delta. PROVED, via Mathlib''s sub-Gaussian
+    machinery.
+
+    This is the statement a card needs in order to DISCHARGE `hn_sufficient` rather than assume
+    it. Its hypotheses are where the remaining work is: the sample must be independent with
+    a common mean, which the real experiment does not obviously satisfy because its problem
+    set is filtered on the model''s own failures.
+
+    '
+  premises:
+  - id: hn
+    type: hoeffdingSize (b - a) eps delta <= n
+    statement: 'the paired sample is at least the Hoeffding size for the tolerance, the confidence,
+      and the WIDTH of the per-problem difference
+
+      '
+- id: AIQ.Teams.ContextualDrag.hoeffdingSize_two_eq
+  kind: theorem
+  declaration: AIQ.Teams.ContextualDrag.hoeffdingSize_two_eq
+  source_path: theory/lean/ContextualDrag.lean
+  statement: 'The sample size scales with the SQUARE of the width of the quantity being averaged,
+    so a width-2 quantity needs four times a width-1 one. PROVED.
+
+    This is a correction with teeth. An accuracy lives in [0,1] and needs about 738 at eps
+    = delta = 0.05, but the paired DIFFERENCE of two accuracies lives in [-1,1] and needs
+    about 2952. Applying the accuracy''s number to the difference understates the requirement
+    fourfold.
 
     '

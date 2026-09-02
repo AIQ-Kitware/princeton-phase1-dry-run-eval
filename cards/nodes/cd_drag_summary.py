@@ -73,7 +73,7 @@ class CDDragSummaryCLI(scfg.DataConfig):
     # `hn_sufficient` is the load-bearing gap and is deliberately recorded as
     # `assumes` rather than quietly satisfied: `min_kept_problems` is a floor on
     # whether the pipeline produced anything, NOT a check that n resolves a drag
-    # of this size. A paired Hoeffding bound at eps = delta = 0.05 needs n >= 738
+    # of this size. A paired Hoeffding bound at eps = delta = 0.05 needs n >= 2952
     # kept problems; runs to date are far below that. The 2026-08-06 scale-up
     # journal records a model reported VERIFIED whose drag was not distinguishable
     # from zero -- found by a person who went looking, which is the failure this
@@ -81,7 +81,10 @@ class CDDragSummaryCLI(scfg.DataConfig):
     @theory.tests('Hygiene.Inference.threshold_exceeds_sampling_error')
     @theory.assumes('Hygiene.Inference.threshold_exceeds_sampling_error::hn_sufficient',
                     note='min_kept_problems gates pipeline output, not statistical power; '
-                         'n >= 738 is needed at eps = delta = 0.05 and runs are far below')
+                         'n >= 2952 is needed at eps = delta = 0.05 and runs are far below. '
+                         'The sample size scales with the SQUARE of the width of the quantity '
+                         'averaged, and a difference of two accuracies has width 2, not 1 -- '
+                         'so the paired bound is four times the single-mean 738')
     @theory.assumes('Hygiene.Inference.threshold_exceeds_sampling_error::hmultiple',
                     note='the model/config sweep is a comparison family; no correction is applied')
     # What the measurement is OF. The construct is "injecting a model's own
