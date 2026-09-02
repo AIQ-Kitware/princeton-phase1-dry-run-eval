@@ -20,6 +20,7 @@ from pathlib import Path
 import scriptconfig as scfg
 
 from cards.nodes._step import read_manifest, write_manifest
+import magnet.theory as theory
 
 #: Bump when the terminal-result shape changes incompatibly.
 #: 2 -- cohort gained n_filtered_problems / n_twof_missing, and
@@ -28,6 +29,12 @@ from cards.nodes._step import read_manifest, write_manifest
 SCHEMA_VERSION = 2
 
 
+# `drag_threshold` is a card parameter with a default, so the threshold is
+# fixed before any result is seen -- which is exactly what `hprespecified`
+# asks. Overriding it from the matrix keeps that true; reading a run and then
+# picking a threshold would not.
+@theory.satisfies('Hygiene.Inference.threshold_exceeds_sampling_error::hprespecified',
+                  note='drag_threshold is a card default, fixed before results are seen')
 class CDDragSummaryCLI(scfg.DataConfig):
     """Compute acc_clean, acc_2f and their difference."""
 
@@ -60,6 +67,41 @@ class CDDragSummaryCLI(scfg.DataConfig):
         'results.json', help="The card's terminal artifact.",
         tags=['out_path', 'primary'])
 
+    # The card's verdict is `drag > drag_threshold`, so this node is where the
+    # hygiene statements are either discharged or left standing.
+    #
+    # `hn_sufficient` is the load-bearing gap and is deliberately recorded as
+    # `assumes` rather than quietly satisfied: `min_kept_problems` is a floor on
+    # whether the pipeline produced anything, NOT a check that n resolves a drag
+    # of this size. A paired Hoeffding bound at eps = delta = 0.05 needs n >= 738
+    # kept problems; runs to date are far below that. The 2026-08-06 scale-up
+    # journal records a model reported VERIFIED whose drag was not distinguishable
+    # from zero -- found by a person who went looking, which is the failure this
+    # annotation exists to make visible without one.
+    @theory.tests('Hygiene.Inference.threshold_exceeds_sampling_error')
+    @theory.assumes('Hygiene.Inference.threshold_exceeds_sampling_error::hn_sufficient',
+                    note='min_kept_problems gates pipeline output, not statistical power; '
+                         'n >= 738 is needed at eps = delta = 0.05 and runs are far below')
+    @theory.assumes('Hygiene.Inference.threshold_exceeds_sampling_error::hmultiple',
+                    note='the model/config sweep is a comparison family; no correction is applied')
+    # What the measurement is OF. The construct is "injecting a model's own
+    # failed reasoning degrades later accuracy"; the measurement is a
+    # benchmark accuracy difference. That gap is worth naming even though
+    # nothing here can close it.
+    @theory.approximates('Hygiene.Measurement.measured_score_tracks_construct')
+    @theory.assumes('Hygiene.Measurement.measured_score_tracks_construct::hcontam',
+                    note='no contamination check; GPQA is public and predates the models under test')
+    @theory.approximates('Hygiene.Measurement.measured_score_tracks_construct::hstable',
+                         note='partly established: the cross-host control in the 2026-08-06 journal '
+                              'found Turing fp16 and Ampere bf16 agreeing on acc_clean to 0.0022. '
+                              'Hardware and dtype are covered; decoding seed and prompt ordering are not')
+    @theory.approximates('Hygiene.Concentration.paired_difference_within_tolerance')
+    @theory.assumes('Hygiene.Concentration.paired_difference_within_tolerance::hiid',
+                    note='GPQA problems are treated as iid draws; not established')
+    @theory.satisfies('Hygiene.Concentration.paired_difference_within_tolerance::hbdd',
+                      note='both accuracies are trajectory-weighted means in [0, 1]')
+    @theory.assumes('Hygiene.Concentration.paired_difference_within_tolerance::hn',
+                    note='same sample-size gap as hn_sufficient')
     @classmethod
     def main(cls, argv=None, **kwargs):
         config = cls.cli(argv=argv, data=kwargs, strict=True, verbose=True)
@@ -144,6 +186,11 @@ class CDDragSummaryCLI(scfg.DataConfig):
               n_twof_missing=n_missing)
 
 
+# Both accuracies are computed by this one function over the SAME `ids`, which
+# is what makes the drag a per-instance paired difference rather than a
+# difference of two independently-sampled means.
+@theory.satisfies('Hygiene.Concentration.paired_difference_within_tolerance::hpaired',
+                  note='acc_clean and acc_2f are both means over the same surviving problem ids')
 def _mean_over(by_id, ids):
     """
     Trajectory-weighted accuracy over a chosen set of problems.
@@ -165,6 +212,11 @@ def _mean_over(by_id, ids):
     return sum(by_id[i]['correct'] for i in ids) / total
 
 
+# GPQA is multiple choice and scored by exact match against the answer key, so
+# the automatic scorer and the construct it proxies coincide here -- which is
+# not true of every benchmark this card could be pointed at.
+@theory.satisfies('Hygiene.Measurement.measured_score_tracks_construct::hscorer',
+                  note='GPQA is multiple choice, scored by exact match against the key')
 def _clean_accuracy_by_problem(processed_ds: Path, twof_ds: Path):
     """
     Per-problem clean correctness, restricted to problems that survived.

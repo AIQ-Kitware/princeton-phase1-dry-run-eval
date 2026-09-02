@@ -60,6 +60,39 @@ links:
     url: "https://huggingface.co/datasets/Idavidrein/gpqa"
     type: "dataset"
 
+# What this card's verdict stands on.
+#
+# Contextual drag has no bespoke theorem, and saying so precisely is worth more
+# than leaving it unsaid: a threshold card still leans on the same premises every
+# threshold card leans on. The hygiene statements are where those live.
+#
+# `empirical_sources` is read out of the node source with `ast` -- nothing is
+# imported, so auditing this card never requires the serving stack. The
+# annotations sit at the code sites in nodes/cd_drag_summary.py, so they move
+# with the code instead of rotting the way a line-numbered reference would.
+#
+# The unaccounted premise this is meant to surface is `hn_sufficient`: a paired
+# Hoeffding bound at eps = delta = 0.05 needs n >= 738 kept problems, and runs to
+# date are far below it. It is `assumes`, not `satisfies`, and it should stay
+# that way until the card computes the bound.
+theory:
+  indexes:
+    - ../theory/indexes/hygiene.yaml
+    - ../theory/indexes/conjectures.yaml
+
+  empirical_sources:
+    - nodes/cd_drag_summary.py
+
+  links:
+    # `motivates`, not `tests`: the conjecture is open (`sorry`), and a motivates
+    # link deliberately creates no premise-coverage obligation.
+    - relation: motivates
+      ref: AIQ.Conjectures.CertificationFloor.baa_phase1_requires_queries
+      note: >
+        The card asserts a 0.05 effect from a sample far below the 738 that
+        Hoeffding requires. What the smallest sufficient n actually is, is the
+        open question this card is evidence for rather than a test of.
+
 claim:
   python: |
     # Columns are read by name rather than
