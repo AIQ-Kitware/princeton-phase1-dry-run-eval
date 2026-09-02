@@ -167,6 +167,15 @@ kwdagger:
     init_inference.max_questions: 8
     init_inference.n: 8
     init_inference.max_tokens: 2048
+    # Explicitly False, on both rounds. Passing neither --enable_thinking nor
+    # --disable_thinking is not neutral: contextual_drag's tri-state turns
+    # "unset" into thinking ON, the prompt then ends at <|im_start|>assistant
+    # with no empty think block, and Qwen3 reasons into the token budget.
+    # A leased 200-question run without this line (2026-09-02) had 1534 of
+    # 1584 clean generations finish on length and came back FALSIFIED at
+    # drag -0.39; the model config's own enable_thinking never reaches the
+    # renderer. The alias name Qwen3_8B_NoThinking acts on nothing by itself.
+    init_inference.thinking: False
     # Placement, not behaviour -- perf params, so changing them does not
     # invalidate generations. Ignored entirely on a REST endpoint.
     init_inference.gpu_memory_utilization: 0.85
@@ -186,6 +195,7 @@ kwdagger:
     twof_inference.max_questions: 0
     twof_inference.n: 8
     twof_inference.max_tokens: 2048
+    twof_inference.thinking: False
     twof_inference.gpu_memory_utilization: 0.85
     twof_inference.tensor_parallel_size: 1
 
