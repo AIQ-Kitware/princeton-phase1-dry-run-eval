@@ -39,6 +39,20 @@ queries suffice for the stated tolerance and confidence. That would turn the
 sample-size condition from a defined quantity into an actual guarantee, and it
 is the piece that would let a card discharge `hn_sufficient` rather than assume
 it. Mathlib's `ProbabilityTheory` sub-Gaussian machinery is the obvious start.
+
+## Prior art worth using before writing any of that
+
+**StatsMLlib** (github.com/Lean-MoDS/StatsMLlib) advertises Hoeffding,
+McDiarmid and scalar Bernstein among its results, and claims 90 verified
+modules with no `sorry`, `axiom`, `admit` or `native_decide`. It pins
+`v4.33.0`; this development is on `v4.33.0-rc2`, so the two are on the same
+minor version and it is worth trying to build against before reimplementing
+anything. Not yet verified here: the exact Hoeffding declaration, its licence,
+and whether the Mathlib revisions actually line up.
+
+In-tree fallback: `ProbabilityTheory.measure_sum_ge_le_of_iIndepFun` in
+`Mathlib/Probability/Moments/SubGaussian.lean` is the sub-Gaussian route to the
+same bound, with no external dependency.
 -/
 import Mathlib.Algebra.BigOperators.Field
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
