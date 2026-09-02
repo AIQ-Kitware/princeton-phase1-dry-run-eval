@@ -23,3 +23,26 @@ declaration that does not exist is the failure this machinery exists to prevent.
 An entry of `kind: conjecture` is an open question, carrying `sorry` in its
 formalization. Cards link to those with `motivates`, which creates no
 premise-coverage obligation.
+
+## Building the Lean
+
+`lean/ContextualDrag.lean` is a real Lean 4 development, not a document. It is a
+self-contained Lake project so you can check it yourself:
+
+```bash
+cd theory
+lake exe cache get     # downloads prebuilt Mathlib oleans, a few minutes
+lake build
+```
+
+A clean build prints nothing. There is no `sorry` in it.
+
+**Do not run `lake update`.** The committed `lake-manifest.json` pins the exact
+Mathlib revision these proofs were checked against; resolving fresh picks up a
+newer Mathlib, and a proof that holds against one revision is not guaranteed to
+hold against another. `formalization.yaml` records the toolchain, the card this
+is about, and — in `fidelity.known_limitations` — what it deliberately does not
+formalize.
+
+The file's own header is the thing worth reading first: it says what is proved,
+what is assumed, and what to do next.

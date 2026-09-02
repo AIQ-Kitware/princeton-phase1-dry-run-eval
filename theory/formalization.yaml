@@ -1,0 +1,43 @@
+# formalization.yaml (v0.3): repo-root metadata for an AI-assisted formalization.
+# Schema reference: https://github.com/mathlib-initiative/formalization.yaml
+
+version: "v0.3"
+
+project:
+  name: "Contextual drag: the paired accuracy difference behind the evaluation card"
+  authors:
+    - "Kitware"
+    - "Claude Opus 5"
+  license: "Apache-2.0"
+  description: >
+    Lean 4 formalization of the quantity this repository's evaluation card
+        measures. Two results carry the weight: the drag is a mean of a per-problem
+        difference precisely because both accuracies are taken over the same problem
+        set, and a paired sample of at least the Hoeffding size puts the measured
+        drag within eps of the population drag with probability 1 - delta.
+
+# The evaluation card this formalization is about.
+targets:
+  cards:
+    - "cards/contextual_drag_kwdagger.yaml"
+  claim: "drag = mean(acc_clean) - mean(acc_2f) over the same surviving problems, asserted to clear a threshold"
+
+# Built and checked against Mathlib at the revision pinned in lake-manifest.json.
+#
+#     cd theory && lake exe cache get && lake build
+status:
+  build:
+    toolchain: "leanprover/lean4:v4.33.0-rc2"
+    sorries: 0
+    validation_commands:
+      - "lake exe cache get"
+      - "lake build"
+
+fidelity:
+  known_limitations: >
+    No probability model of the FILTER. The card's problem set is
+        selected on the model's own failures, so the independence and common-mean
+        hypotheses of the Hoeffding result are not free for the real experiment;
+        everything proved is about the population the surviving problems are drawn
+        from. Nothing formalizes that the drag measures contextual interference
+        rather than any other difference between the two prompts.

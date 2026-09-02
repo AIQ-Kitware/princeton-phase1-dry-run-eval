@@ -1,0 +1,26 @@
+# Minimal Lean project so the formalization in `lean/` can actually be built and
+# checked here, rather than only read.
+#
+#     cd theory
+#     lake exe cache get     # prebuilt Mathlib oleans; do NOT run `lake update`
+#     lake build
+#
+# `lake update` would repin Mathlib. The committed `lake-manifest.json` pins the
+# exact revision these proofs were checked against; resolving fresh picks a
+# newer Mathlib, and a proof that holds against one revision is not guaranteed
+# to hold against another.
+
+name = "aiq_theory"
+version = "0.1.0"
+defaultTargets = ["ContextualDrag"]
+
+[leanOptions]
+autoImplicit = false
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+
+[[lean_lib]]
+name = "ContextualDrag"
+srcDir = "lean"
