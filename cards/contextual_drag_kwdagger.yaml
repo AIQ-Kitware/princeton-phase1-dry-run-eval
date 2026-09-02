@@ -92,10 +92,11 @@ theory:
         same surviving problem set, so the drag is a mean of a per-problem
         difference. Proved, and it is what makes the comparison legitimate.
     - relation: motivates
-      ref: AIQ.Teams.ContextualDrag.SampleSufficient
+      ref: AIQ.Teams.ContextualDrag.unpaired_difference_of_no_effect
       note: >
-        The condition that would make a measured drag evidence about the
-        population. The card does not compute it; see `hn_sufficient` above.
+        Why this node restricts the clean accuracy to the problems that survived
+        the filter: comparing averages over different problem sets can report a
+        drag where the per-problem effect is zero. Proved, with a witness.
     # `motivates`, not `tests`: the conjecture is open (`sorry`), and a motivates
     # link deliberately creates no premise-coverage obligation.
     - relation: motivates

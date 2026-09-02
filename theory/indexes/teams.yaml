@@ -15,19 +15,29 @@ entries:
 - id: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
   kind: theorem
   declaration: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
-  source_path: theory/lean/Teams/ContextualDrag.lean
+  source_path: theory/lean/ContextualDrag.lean
   statement: 'The drag equals the mean of the per-problem difference, because both accuracies
     are means over the same problem set. This is what makes the two accuracies comparable
     at all; measured over different problem sets the drag would be a difference of independent
     means and the pairing premise would be false. PROVED.
 
     '
-- id: AIQ.Teams.ContextualDrag.SampleSufficient
+- id: AIQ.Teams.ContextualDrag.unpaired_difference_of_no_effect
+  kind: theorem
+  declaration: AIQ.Teams.ContextualDrag.unpaired_difference_of_no_effect
+  source_path: theory/lean/ContextualDrag.lean
+  statement: 'An explicit witness showing that comparing two averages taken over DIFFERENT
+    problem sets can report a nonzero difference when the per-problem effect is identically
+    zero. PROVED. This is why the clean accuracy is restricted to the problems that survived
+    the filter, and why the pairing identity above is load-bearing rather than pedantic.
+
+    '
+- id: AIQ.Teams.ContextualDrag.hoeffdingSize
   kind: definition
-  declaration: AIQ.Teams.ContextualDrag.SampleSufficient
-  source_path: theory/lean/Teams/ContextualDrag.lean
-  statement: 'The condition under which a measured drag is evidence about the population rather
-    than about this sample: the problem set is at least the Hoeffding size for the asserted
-    tolerance and confidence. The card does not compute it.
+  declaration: AIQ.Teams.ContextualDrag.hoeffdingSize
+  source_path: theory/lean/ContextualDrag.lean
+  statement: 'The paired sample size for tolerance eps at confidence 1 - delta; about 738
+    at eps = delta = 0.05. Defined as a quantity only -- the file states plainly that it is
+    never connected to a confidence claim, because there is no probability space in it.
 
     '
