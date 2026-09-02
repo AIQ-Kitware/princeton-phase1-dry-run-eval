@@ -1,0 +1,10 @@
+.git
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+evaluation_runs/
+runs/
+# The magnet submodule is not baked; MAGNET_REF in the Dockerfile pins it.
+submodules/
+# Conda environment specs are for the host route, not the image.
+env/
