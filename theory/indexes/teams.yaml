@@ -13,7 +13,7 @@ entries:
 - id: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
   kind: theorem
   declaration: AIQ.Teams.ContextualDrag.drag_eq_mean_diff
-  source_path: theory/lean/ContextualDrag.lean
+  source_path: theory/lean/ContextualDrag/Basic.lean
   statement: 'The drag equals the mean of the per-problem difference, because both accuracies
     are means over the same problem set. PROVED. This is what makes the two accuracies comparable
     at all.
@@ -22,7 +22,7 @@ entries:
 - id: AIQ.Teams.ContextualDrag.unpaired_difference_of_no_effect
   kind: theorem
   declaration: AIQ.Teams.ContextualDrag.unpaired_difference_of_no_effect
-  source_path: theory/lean/ContextualDrag.lean
+  source_path: theory/lean/ContextualDrag/Basic.lean
   statement: 'An explicit witness that comparing averages over DIFFERENT problem sets can
     report a nonzero difference when the per-problem effect is identically zero. PROVED. Why
     the clean accuracy is restricted to the survivors.
@@ -31,7 +31,7 @@ entries:
 - id: AIQ.Teams.ContextualDrag.abs_measuredDrag_sub_lt_of_hoeffdingSize_le
   kind: theorem
   declaration: AIQ.Teams.ContextualDrag.abs_measuredDrag_sub_lt_of_hoeffdingSize_le
-  source_path: theory/lean/ContextualDrag.lean
+  source_path: theory/lean/ContextualDrag/Basic.lean
   statement: 'A full measure-theoretic Hoeffding bound for the drag: on a paired sample of
     at least `hoeffdingSize (b - a) eps delta` problems, the measured drag is within eps of
     the POPULATION drag with probability at least 1 - delta. PROVED, via Mathlib''s sub-Gaussian
@@ -53,7 +53,7 @@ entries:
 - id: AIQ.Teams.ContextualDrag.hoeffdingSize_two_eq
   kind: theorem
   declaration: AIQ.Teams.ContextualDrag.hoeffdingSize_two_eq
-  source_path: theory/lean/ContextualDrag.lean
+  source_path: theory/lean/ContextualDrag/Basic.lean
   statement: 'The sample size scales with the SQUARE of the width of the quantity being averaged,
     so a width-2 quantity needs four times a width-1 one. PROVED.
 

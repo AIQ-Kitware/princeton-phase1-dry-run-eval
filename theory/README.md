@@ -26,11 +26,11 @@ premise-coverage obligation.
 
 ## Building the Lean
 
-`lean/ContextualDrag.lean` is a real Lean 4 development, not a document. It is a
+`lean/` is a real Lean 4 project, not a document, not a document. It is a
 self-contained Lake project so you can check it yourself:
 
 ```bash
-cd theory
+cd theory/lean
 lake exe cache get     # downloads prebuilt Mathlib oleans, a few minutes
 lake build
 ```
@@ -40,7 +40,7 @@ A clean build prints nothing. There is no `sorry` in it.
 **Do not run `lake update`.** The committed `lake-manifest.json` pins the exact
 Mathlib revision these proofs were checked against; resolving fresh picks up a
 newer Mathlib, and a proof that holds against one revision is not guaranteed to
-hold against another. `formalization.yaml` records the toolchain, the card this
+hold against another. `lean/formalization.yaml` records the toolchain, the card this
 is about, and — in `fidelity.known_limitations` — what it deliberately does not
 formalize.
 

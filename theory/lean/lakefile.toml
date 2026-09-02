@@ -1,7 +1,6 @@
-# Minimal Lean project so the formalization in `lean/` can actually be built and
-# checked here, rather than only read.
+# Lean project for this repository's formalization.
 #
-#     cd theory
+#     cd theory/lean
 #     lake exe cache get     # prebuilt Mathlib oleans; do NOT run `lake update`
 #     lake build
 #
@@ -9,8 +8,12 @@
 # exact revision these proofs were checked against; resolving fresh picks a
 # newer Mathlib, and a proof that holds against one revision is not guaranteed
 # to hold against another.
+#
+# Layout follows the usual Lean convention: `ContextualDrag.lean` is the root module and
+# imports `ContextualDrag/Basic.lean`, so further modules are added under `ContextualDrag/` and
+# imported from the root.
 
-name = "aiq_theory"
+name = "contextual_drag"
 version = "0.1.0"
 defaultTargets = ["ContextualDrag"]
 
@@ -23,4 +26,3 @@ scope = "leanprover-community"
 
 [[lean_lib]]
 name = "ContextualDrag"
-srcDir = "lean"
