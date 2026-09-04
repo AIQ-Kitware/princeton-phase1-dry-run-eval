@@ -20,12 +20,12 @@
 # runs as the invoking user, so a cache path baked into the image would be
 # unwritable.
 #
-# MAGNET_REF is the aiq-magnet commit Kitware evaluates against. It is
-# on AIQ-Kitware/aiq-magnet main (the kwdagger execution merge, PR #94);
-# `--build-arg MAGNET_REF=main` builds against the tip of main instead.
+# MAGNET_VERSION is the aiq-magnet release the evaluator runs against, from
+# PyPI (0.1.0, released 2026-09-04; it also brings aiq-magnet-theory).
+# `--build-arg MAGNET_VERSION=<version>` builds against another release.
 ARG BASE_IMAGE=pytorch/pytorch:2.8.0-cuda12.8-cudnn9-devel
 FROM ${BASE_IMAGE}
-ARG MAGNET_REF=5c92d9fc180e1d5deb1c5ec7cd8dc3a64e328e13
+ARG MAGNET_VERSION=0.1.0
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
@@ -50,7 +50,7 @@ WORKDIR /opt/src
 # endpoint is acquired outside the container by the evaluator's magnet.
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system \
-        "aiq-magnet @ git+https://github.com/AIQ-Kitware/aiq-magnet@${MAGNET_REF}" \
+        "aiq-magnet==${MAGNET_VERSION}" \
         'safer>=2.0'
 
 # Runtime dependencies in a source-independent layer: pyproject's base plus

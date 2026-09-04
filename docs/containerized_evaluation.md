@@ -24,11 +24,12 @@ cd $REPO
 docker build -t contextual-drag-gpu .
 ```
 
-`MAGNET_REF` in the Dockerfile is the aiq-magnet commit Kitware evaluates
-against. To build against the public main instead:
+`MAGNET_VERSION` in the Dockerfile is the aiq-magnet release the evaluator uses,
+from PyPI (0.1.0, which also brings aiq-magnet-theory). To build against
+another release:
 
 ```bash
-docker build --build-arg MAGNET_REF=main -t contextual-drag-gpu .
+docker build --build-arg MAGNET_VERSION=0.1.0 -t contextual-drag-gpu .
 ```
 
 The image sets no HuggingFace cache path. The tokenizer for the card's
@@ -41,7 +42,7 @@ On the host you need docker, tmux, infer-stack, and the same aiq-magnet pin
 the image carries:
 
 ```bash
-pip install "aiq-magnet[optional] @ git+https://github.com/AIQ-Kitware/aiq-magnet@5c92d9fc180e1d5deb1c5ec7cd8dc3a64e328e13"
+pip install "aiq-magnet[optional]==0.1.0"
 export PYTHONPATH=$REPO:$REPO/src
 export HF_HOME=$HOME/.cache/huggingface
 ```

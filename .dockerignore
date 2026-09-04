@@ -4,7 +4,7 @@
 **/*.egg-info
 evaluation_runs/
 runs/
-# The magnet submodule is not baked; MAGNET_REF in the Dockerfile pins it.
+# The magnet submodule is not baked; MAGNET_VERSION in the Dockerfile pins the release.
 submodules/
 # Conda environment specs are for the host route, not the image.
 env/
