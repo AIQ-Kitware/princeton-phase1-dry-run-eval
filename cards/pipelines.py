@@ -32,8 +32,7 @@ import json
 from pathlib import Path
 
 import kwdagger
-from magnet.containers import ContainerProcessNode
-from magnet.leasing import LeasedProcessNode
+from magnet.process_node import MagnetProcessNode
 
 from cards.nodes.cd_aggregate import CDAggregateCLI
 from cards.nodes.cd_drag_summary import CDDragSummaryCLI
@@ -44,7 +43,7 @@ from cards.nodes._load_result import load_node_result
 
 __all__ = ['drag_pipeline']
 
-# eval_models_params.json as it sits in the checkout. `resolve_endpoints` runs
+# eval_models_params.json as it sits in the checkout. `resolve_lease_endpoints` runs
 # in the *scheduler*, which is the one process in this pipeline that has only
 # magnet + kwdagger -- every node's own dependency is satisfied inside its
 # container. Importing ``contextual_drag`` to read this mapping therefore made
@@ -95,7 +94,7 @@ def _model_params_fpath(override=None) -> Path:
         'cannot resolve which endpoint its generation rounds need.')
 
 
-class _Inference(LeasedProcessNode):
+class _Inference(MagnetProcessNode):
     """
     A generation round, holding its model only while it generates.
 
@@ -116,7 +115,7 @@ class _Inference(LeasedProcessNode):
         # attribute 'query_keys'" after every node has already run.
         return load_node_result(self, node_dpath)
 
-    def resolve_endpoints(self):
+    def resolve_lease_endpoints(self):
         config = self.final_config or {}
         alias = config.get('model_config')
         if not alias:
@@ -149,7 +148,7 @@ class _TwofInference(_Inference):
     name = 'twof_inference'
 
 
-class _EvalInit(ContainerProcessNode):
+class _EvalInit(MagnetProcessNode):
     """Score the clean round, emitting the flattened form."""
     name = 'eval_init'
     executable = 'python -m cards.nodes.cd_eval'
@@ -162,7 +161,7 @@ class _EvalInit(ContainerProcessNode):
         return load_node_result(self, node_dpath)
 
 
-class _EvalTwof(ContainerProcessNode):
+class _EvalTwof(MagnetProcessNode):
     """Score the 2F round."""
     name = 'eval_twof'
     executable = 'python -m cards.nodes.cd_eval'
@@ -175,7 +174,7 @@ class _EvalTwof(ContainerProcessNode):
         return load_node_result(self, node_dpath)
 
 
-class _Postprocess(ContainerProcessNode):
+class _Postprocess(MagnetProcessNode):
     """Fold flattened generations into a dataset."""
     name = 'postprocess'
     executable = 'python -m cards.nodes.cd_postprocess'
@@ -188,7 +187,7 @@ class _Postprocess(ContainerProcessNode):
         return load_node_result(self, node_dpath)
 
 
-class _Aggregate(ContainerProcessNode):
+class _Aggregate(MagnetProcessNode):
     """Filter problems and build the 2F dataset."""
     name = 'aggregate'
     executable = 'python -m cards.nodes.cd_aggregate'
@@ -201,7 +200,7 @@ class _Aggregate(ContainerProcessNode):
         return load_node_result(self, node_dpath)
 
 
-class _DragSummary(ContainerProcessNode):
+class _DragSummary(MagnetProcessNode):
     """Compute the drag and emit the terminal artifact."""
     name = 'drag_summary'
     executable = 'python -m cards.nodes.cd_drag_summary'

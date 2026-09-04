@@ -41,7 +41,7 @@ On the host you need docker, tmux, infer-stack, and the same aiq-magnet pin
 the image carries:
 
 ```bash
-pip install "aiq-magnet[optional] @ git+https://github.com/AIQ-Kitware/aiq-magnet@4b1f07d3cc92ac68aee3c1aad6e995651173adfc"
+pip install "aiq-magnet[optional] @ git+https://github.com/AIQ-Kitware/aiq-magnet@5c92d9fc180e1d5deb1c5ec7cd8dc3a64e328e13"
 export PYTHONPATH=$REPO:$REPO/src
 export HF_HOME=$HOME/.cache/huggingface
 ```

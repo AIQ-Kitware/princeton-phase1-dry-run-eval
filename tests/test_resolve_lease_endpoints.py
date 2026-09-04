@@ -1,7 +1,7 @@
 """
 The scheduler resolves endpoint aliases without importing contextual_drag.
 
-`resolve_endpoints` runs at DAG-compile time, in the process that builds the
+`resolve_lease_endpoints` runs at DAG-compile time, in the process that builds the
 schedule -- not inside any node's container. That process has magnet and
 kwdagger and nothing else. When the lookup imported `contextual_drag`, the card
 compiled only on hosts where the package happened to be pip-installed next to
@@ -34,18 +34,18 @@ def test_alias_resolves_to_the_served_model_name():
     """The endpoint alias is the config block's model_name, verbatim."""
     alias, block = next(
         (k, v) for k, v in _blocks().items() if v.get('model_name'))
-    assert _inference_node(alias).resolve_endpoints() == [block['model_name']]
+    assert _inference_node(alias).resolve_lease_endpoints() == [block['model_name']]
 
 
 def test_the_scaleup_alias_resolves():
     """The alias contextual_drag_scaleup.yaml names must be addressable."""
-    assert _inference_node('Gemma4_E2B').resolve_endpoints() == [
+    assert _inference_node('Gemma4_E2B').resolve_lease_endpoints() == [
         'google/gemma-4-E2B-it']
 
 
 def test_unknown_alias_yields_no_lease_rather_than_crashing():
     """The node reports a bad alias when it runs, naming the valid ones."""
-    assert _inference_node('NotAModelThatExists').resolve_endpoints() == []
+    assert _inference_node('NotAModelThatExists').resolve_lease_endpoints() == []
 
 
 def test_missing_params_file_is_loud():
@@ -68,7 +68,7 @@ def test_lookup_does_not_import_contextual_drag(monkeypatch):
     def guard(name, *args, **kwargs):
         if name == 'contextual_drag' or name.startswith('contextual_drag.'):
             raise AssertionError(
-                f'resolve_endpoints imported {name}; the scheduler must not '
+                f'resolve_lease_endpoints imported {name}; the scheduler must not '
                 'depend on a node-container package')
         return real_import(name, *args, **kwargs)
 
@@ -77,7 +77,7 @@ def test_lookup_does_not_import_contextual_drag(monkeypatch):
     node = _inference_node(alias)
 
     monkeypatch.setattr(builtins, '__import__', guard)
-    assert node.resolve_endpoints() == [blocks[alias]['model_name']]
+    assert node.resolve_lease_endpoints() == [blocks[alias]['model_name']]
 
 
 def test_thinking_tristate_reaches_the_cli_as_a_flag():
@@ -110,14 +110,37 @@ def test_the_card_asks_for_thinking_off_on_both_rounds():
         assert matrix[f'{node}.max_tokens'] == 6144
 
 
-def _claim_status(card_name, **symbols):
-    """Run a card's claim through MAGNET's real evaluator."""
+def _claim_status(card_name, drag_threshold, **summary):
+    """
+    Run a card's claim through MAGNET's real evaluator.
+
+    The claim reads the result node the way ``magnet evaluate_new`` hands it
+    over: one flat kwdagger aggregate row (``metrics.drag_summary.status``,
+    ``metrics.drag_summary.metrics.drag``, ...) behind a
+    ``ClaimResultNamespace``, plus the card's own symbols. Build exactly that
+    rather than passing the node's payload flat, which is a shape no run ever
+    produces.
+    """
     import pathlib
     import kwutil
     from magnet.evaluation import Claim
+    from magnet.evaluation_new import ClaimResultNamespace
     card = kwutil.Yaml.coerce(
         (pathlib.Path(__file__).parent.parent / 'cards' / card_name).read_text())
-    return Claim({'python': card['claim']['python']}).evaluate(dict(symbols))[0]
+
+    row = {}
+
+    def _flatten(prefix, value):
+        if isinstance(value, dict):
+            for key, child in value.items():
+                _flatten(f'{prefix}.{key}', child)
+        else:
+            row[prefix] = value
+
+    _flatten('metrics.drag_summary', summary)
+    context = ClaimResultNamespace(row).bind()
+    context['drag_threshold'] = drag_threshold
+    return Claim({'python': card['claim']['python']}).evaluate(context)[0]
 
 
 @pytest.mark.parametrize('card_name', [

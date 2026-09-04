@@ -103,16 +103,26 @@ links:
 
 claim:
   python: |
-    # The result node's values, unqualified into this namespace.
-    globals().update(metrics.drag_summary.as_dict())
-    # `status`, `metrics` and `cohort` come from results.json, the DAG's
-    # declared result artifact.
-    n_kept = cohort['n_kept_problems']
-    drag = metrics['drag']
+    # Columns are read by name rather than
+    # `globals().update(metrics.drag_summary.as_dict())`. There is no `as_dict`
+    # on ClaimResultNamespace, and adding one would defeat the `consumed`
+    # record: the namespace notes every leaf a claim touches and magnet writes
+    # that to the verdict, so a bulk dump marks them all. See SMELL-MAG-06.
+    #
+    # Scalars and lists arrive as themselves; a nested mapping becomes
+    # namespace levels, so reach into it by name rather than subscripting.
+    summary = metrics.drag_summary
+    status = summary.status
+    detail = summary.detail
+
+    n_kept = summary.cohort.n_kept_problems
+    drag = summary.metrics.drag
+    acc_clean = summary.metrics.acc_clean
+    acc_2f = summary.metrics.acc_2f
 
     print(
         f"[contextual_drag] status={status} "
-        f"acc_clean={metrics['acc_clean']} acc_2f={metrics['acc_2f']} "
+        f"acc_clean={acc_clean} acc_2f={acc_2f} "
         f"drag={drag} n_kept_problems={n_kept}"
     )
     if detail:
@@ -131,8 +141,8 @@ claim:
         )
     assert drag >= drag_threshold, (
         f"Got drag={drag:+.3f}, expected >= {drag_threshold:+.3f} "
-        f"(acc_clean={metrics['acc_clean']:.3f}, "
-        f"acc_2f={metrics['acc_2f']:.3f}, n_kept_problems={n_kept})."
+        f"(acc_clean={acc_clean:.3f}, acc_2f={acc_2f:.3f}, "
+        f"n_kept_problems={n_kept})."
     )
 
 symbols:
