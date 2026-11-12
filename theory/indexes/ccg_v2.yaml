@@ -1,0 +1,49 @@
+# The CCG v2 law of contextual drag (Princeton-2, CCG v2 card).
+#
+# NOTHING HERE IS FORMALIZED. The proposition is proved on paper in "Contextual Drag as a
+# Log-Count Vote" (Team Princeton-2, November 11, 2026, section 2) and checked numerically
+# there; it is recorded as stated-not-formalized.
+
+schema_version: 1
+
+entries:
+
+  - id: AIQ.Teams.Princeton.CCGv2.law
+    kind: definition
+    statement: >
+      The CCG v2 law. With K >= 1 drafts in context, T of them correct, model m answers
+      correctly with probability p_m(T) given by
+        logit p_m(T) = c_m + w_m l(T),   l(T) = log((T + 1/2) / (K - T + 1/2)).
+      Equivalently, the odds of a correct answer are e^c times the draft odds (T + 1/2)/(K - T + 1/2) to the power w; the 1/2 is the Jeffreys pseudo-count. c_m is the log-odds of a
+      correct answer when the drafts are tied (l(K/2) = 0); w_m >= 0 is the sensitivity to the
+      draft odds. The law has no endpoint parameters.
+
+  - id: AIQ.Teams.Princeton.CCGv2.symmetry_and_sensitivity
+    kind: theorem
+    statement: >
+      (i) l(K - T) = -l(T), so logit p(T) + logit p(K - T) = 2c. (ii) For two parameter sets,
+      |p' - p| <= (|c' - c| + log(2K + 1) |w' - w|) / 4. (iii) If the log-odds error dz satisfies
+      |dz| <= 1, then |p' - p| <= e p (1 - p) |dz|.
+      STATUS: proved in the theory note; not formalized.
+
+  - id: AIQ.Teams.Princeton.CCGv2.lower_half_predicts_upper
+    kind: conjecture
+    statement: >
+      Fitted on a model's own accuracies with zero, one and two correct drafts out of K = 4, the
+      CCG v2 law predicts its accuracies with three and four correct drafts to within 5
+      percentage points.
+
+      The CCG v2 card tests this on six models measured on AIME and HMMT 2024-25 before
+      submission; all six passed when the law was proposed, and on 21 of 22 ladders across four
+      tasks. The law and the calibration rungs were chosen after examining those ladders, so the
+      card's measurements are not a blind test; ladders of models not used to design it are.
+    premises:
+      - id: hlaw
+        statement: >
+          one (c, w) per model on a task, common across problems
+      - id: hself
+        statement: >
+          each model sees only drafts it wrote itself
+      - id: hheldout
+        statement: >
+          the predicted rungs enter no fit, and no parameter comes from another model

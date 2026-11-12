@@ -43,9 +43,10 @@ from cards.nodes._load_result import load_node_result
 from cards.nodes.cd_compose import CDComposeCLI
 from cards.nodes.cd_ladder import CDLadderCLI
 from cards.nodes.cd_route_loo import CDRouteLooCLI
+from cards.nodes.cd_ccg_v2 import CDCcgV2CLI
 from cards.nodes.cd_seeded_inference import CDSeededInferenceCLI
 
-__all__ = ['drag_pipeline', 'route_model_pipeline']
+__all__ = ['drag_pipeline', 'route_model_pipeline', 'ccg_v2_pipeline']
 
 # eval_models_params.json as it sits in the checkout. `resolve_lease_endpoints` runs
 # in the *scheduler*, which is the one process in this pipeline that has only
@@ -430,5 +431,30 @@ def route_model_pipeline():
             nodes[target].param_ports['model_config'])
 
     dag = kwdagger.Pipeline(list(nodes.values()))
+    dag.build_nx_graphs()
+    return dag
+
+
+class _CcgV2(_ResultNode):
+    name = 'ccg_v2'
+    executable = 'python -m cards.nodes.cd_ccg_v2'
+    params = CDCcgV2CLI
+
+
+def ccg_v2_pipeline():
+    """
+    Build the CCG v2 DAG: one node that scores existing ladders.
+
+    No generation stage is in the DAG, so the card runs without a GPU or a model endpoint.
+
+    Returns:
+        kwdagger.Pipeline
+
+    Example:
+        >>> from cards.pipelines import ccg_v2_pipeline
+        >>> [node.name for node in ccg_v2_pipeline().nodes]
+        ['ccg_v2']
+    """
+    dag = kwdagger.Pipeline([_CcgV2()])
     dag.build_nx_graphs()
     return dag

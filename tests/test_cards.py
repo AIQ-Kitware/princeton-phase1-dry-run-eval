@@ -52,7 +52,7 @@ _BUILTIN_WHITELIST = (
 def _discover_card_paths() -> list[Path]:
     if not CARDS_DIR.exists():
         return []
-    return sorted(p for p in CARDS_DIR.glob("contextual_drag*.yaml") if p.is_file())
+    return sorted(p for p in list(CARDS_DIR.glob("contextual_drag*.yaml")) + list(CARDS_DIR.glob("ccg_*.yaml")) if p.is_file())
 
 
 _CARD_PATHS = _discover_card_paths()

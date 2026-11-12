@@ -1,0 +1,2484 @@
+{
+ "schema": "contextual_drag.route_model.ladder/1",
+ "model": "GPT_OSS_20B",
+ "K": 4,
+ "problems": [
+  {
+   "id": "aime24:10",
+   "baseline_correct": 14,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime24:28",
+   "baseline_correct": 6,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime24:29",
+   "baseline_correct": 8,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime24:4",
+   "baseline_correct": 9,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime24:5",
+   "baseline_correct": 12,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime25:11",
+   "baseline_correct": 13,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime25:17",
+   "baseline_correct": 12,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime25:22",
+   "baseline_correct": 13,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime25:23",
+   "baseline_correct": 12,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime25:25",
+   "baseline_correct": 13,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime25:6",
+   "baseline_correct": 7,
+   "baseline_n": 16
+  },
+  {
+   "id": "aime25:9",
+   "baseline_correct": 11,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt24:11",
+   "baseline_correct": 7,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt24:13",
+   "baseline_correct": 16,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt24:15",
+   "baseline_correct": 5,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt24:6",
+   "baseline_correct": 12,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt24:7",
+   "baseline_correct": 7,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt24:8",
+   "baseline_correct": 5,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt24:9",
+   "baseline_correct": 5,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt25:13",
+   "baseline_correct": 2,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt25:15",
+   "baseline_correct": 5,
+   "baseline_n": 16
+  },
+  {
+   "id": "hmmt25:3",
+   "baseline_correct": 6,
+   "baseline_n": 16
+  }
+ ],
+ "contexts": [
+  {
+   "problem_id": "aime24:10",
+   "T": 0,
+   "draft_answers": [
+    "80",
+    "80",
+    "199-\\sqrt{8481}",
+    "199-\\sqrt{8481}"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    2
+   ],
+   "n": 8,
+   "k": 3
+  },
+  {
+   "problem_id": "aime24:10",
+   "T": 1,
+   "draft_answers": [
+    "199-\\sqrt{8481}",
+    "80",
+    "104",
+    "80"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "aime24:10",
+   "T": 2,
+   "draft_answers": [
+    "104",
+    "104",
+    "199-\\sqrt{8481}",
+    "199-\\sqrt{8481}"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2
+   ],
+   "n": 8,
+   "k": 7
+  },
+  {
+   "problem_id": "aime24:10",
+   "T": 3,
+   "draft_answers": [
+    "104",
+    "80",
+    "104",
+    "104"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:10",
+   "T": 4,
+   "draft_answers": [
+    "104",
+    "104",
+    "104",
+    "104"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:28",
+   "T": 0,
+   "draft_answers": [
+    "25",
+    "6",
+    "42",
+    "5"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 3
+  },
+  {
+   "problem_id": "aime24:28",
+   "T": 1,
+   "draft_answers": [
+    "39",
+    "6",
+    "17",
+    "127"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:28",
+   "T": 2,
+   "draft_answers": [
+    "127",
+    "127",
+    "42",
+    "5"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:28",
+   "T": 3,
+   "draft_answers": [
+    "127",
+    "127",
+    "127",
+    "25"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:28",
+   "T": 4,
+   "draft_answers": [
+    "127",
+    "127",
+    "127",
+    "127"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:29",
+   "T": 0,
+   "draft_answers": [
+    "512",
+    "900",
+    "2",
+    "1024"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "aime24:29",
+   "T": 1,
+   "draft_answers": [
+    "2",
+    "902",
+    "1024",
+    "2"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1
+   ],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "aime24:29",
+   "T": 2,
+   "draft_answers": [
+    "2",
+    "902",
+    "900",
+    "902"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:29",
+   "T": 3,
+   "draft_answers": [
+    "902",
+    "902",
+    "1024",
+    "902"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:29",
+   "T": 4,
+   "draft_answers": [
+    "902",
+    "902",
+    "902",
+    "902"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:4",
+   "T": 0,
+   "draft_answers": [
+    "155",
+    "42",
+    "155",
+    "134"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:4",
+   "T": 1,
+   "draft_answers": [
+    "42",
+    "155",
+    "155",
+    "110"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    2,
+    1
+   ],
+   "n": 8,
+   "k": 7
+  },
+  {
+   "problem_id": "aime24:4",
+   "T": 2,
+   "draft_answers": [
+    "110",
+    "134",
+    "134",
+    "m=110"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    2
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "aime24:4",
+   "T": 3,
+   "draft_answers": [
+    "134",
+    "110",
+    "110",
+    "110"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:4",
+   "T": 4,
+   "draft_answers": [
+    "110",
+    "110",
+    "110",
+    "110"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:5",
+   "T": 0,
+   "draft_answers": [
+    "24\\,572\\,080",
+    "575860",
+    "2304",
+    "1569829"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 3
+  },
+  {
+   "problem_id": "aime24:5",
+   "T": 1,
+   "draft_answers": [
+    "1569829",
+    "48",
+    "2304",
+    "104"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "aime24:5",
+   "T": 2,
+   "draft_answers": [
+    "104",
+    "1569829",
+    "104",
+    "2304"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 7
+  },
+  {
+   "problem_id": "aime24:5",
+   "T": 3,
+   "draft_answers": [
+    "104",
+    "104",
+    "48",
+    "104"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime24:5",
+   "T": 4,
+   "draft_answers": [
+    "104",
+    "104",
+    "104",
+    "104"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:11",
+   "T": 0,
+   "draft_answers": [
+    "508",
+    "1524",
+    "508",
+    "\\,a+b=1009+3=1012\\,"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "aime25:11",
+   "T": 1,
+   "draft_answers": [
+    "508",
+    "1524",
+    "508",
+    "510"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    2,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:11",
+   "T": 2,
+   "draft_answers": [
+    "510",
+    "1017",
+    "510",
+    "508"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:11",
+   "T": 3,
+   "draft_answers": [
+    "510",
+    "510",
+    "508",
+    "510"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:11",
+   "T": 4,
+   "draft_answers": [
+    "510",
+    "510",
+    "510",
+    "510"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:17",
+   "T": 0,
+   "draft_answers": [
+    "76",
+    "61",
+    "83",
+    "86"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "aime25:17",
+   "T": 1,
+   "draft_answers": [
+    "82",
+    "76",
+    "61",
+    "86"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "aime25:17",
+   "T": 2,
+   "draft_answers": [
+    "82",
+    "82",
+    "76",
+    "61"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:17",
+   "T": 3,
+   "draft_answers": [
+    "82",
+    "61",
+    "82",
+    "82"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:17",
+   "T": 4,
+   "draft_answers": [
+    "82",
+    "82",
+    "82",
+    "82"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:22",
+   "T": 0,
+   "draft_answers": [
+    "200",
+    "420",
+    "600",
+    "805"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 4
+  },
+  {
+   "problem_id": "aime25:22",
+   "T": 1,
+   "draft_answers": [
+    "200",
+    "424",
+    "610",
+    "600"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "aime25:22",
+   "T": 2,
+   "draft_answers": [
+    "610",
+    "805",
+    "610",
+    "600"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:22",
+   "T": 3,
+   "draft_answers": [
+    "600",
+    "610",
+    "610",
+    "610"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:22",
+   "T": 4,
+   "draft_answers": [
+    "610",
+    "610",
+    "610",
+    "610"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:23",
+   "T": 0,
+   "draft_answers": [
+    "150",
+    "150",
+    "150",
+    "140"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    3,
+    1
+   ],
+   "n": 8,
+   "k": 0
+  },
+  {
+   "problem_id": "aime25:23",
+   "T": 1,
+   "draft_answers": [
+    "150",
+    "150",
+    "149",
+    "150"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    3
+   ],
+   "n": 8,
+   "k": 7
+  },
+  {
+   "problem_id": "aime25:23",
+   "T": 2,
+   "draft_answers": [
+    "149",
+    "150",
+    "149",
+    "150"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    2
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:23",
+   "T": 3,
+   "draft_answers": [
+    "149",
+    "149",
+    "150",
+    "149"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:23",
+   "T": 4,
+   "draft_answers": [
+    "149",
+    "149",
+    "149",
+    "149"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:25",
+   "T": 0,
+   "draft_answers": [
+    "394",
+    "1666",
+    "1666",
+    "11585"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 4
+  },
+  {
+   "problem_id": "aime25:25",
+   "T": 1,
+   "draft_answers": [
+    "195",
+    "113",
+    "1666",
+    "1666"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1
+   ],
+   "n": 8,
+   "k": 2
+  },
+  {
+   "problem_id": "aime25:25",
+   "T": 2,
+   "draft_answers": [
+    "113",
+    "1666",
+    "195",
+    "113"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 4
+  },
+  {
+   "problem_id": "aime25:25",
+   "T": 3,
+   "draft_answers": [
+    "113",
+    "113",
+    "11585",
+    "113"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:25",
+   "T": 4,
+   "draft_answers": [
+    "113",
+    "113",
+    "113",
+    "113"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:6",
+   "T": 0,
+   "draft_answers": [
+    "271",
+    "93",
+    "263",
+    "1027"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 4
+  },
+  {
+   "problem_id": "aime25:6",
+   "T": 1,
+   "draft_answers": [
+    "271",
+    "271",
+    "821",
+    "263"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1
+   ],
+   "n": 8,
+   "k": 3
+  },
+  {
+   "problem_id": "aime25:6",
+   "T": 2,
+   "draft_answers": [
+    "263",
+    "271",
+    "821",
+    "821"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:6",
+   "T": 3,
+   "draft_answers": [
+    "821",
+    "m+n=821",
+    "1027",
+    "821"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:6",
+   "T": 4,
+   "draft_answers": [
+    "821",
+    "821",
+    "821",
+    "821"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:9",
+   "T": 0,
+   "draft_answers": [
+    "53",
+    "85",
+    "89",
+    "68"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "aime25:9",
+   "T": 1,
+   "draft_answers": [
+    "83",
+    "53",
+    "106",
+    "81"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "aime25:9",
+   "T": 2,
+   "draft_answers": [
+    "81",
+    "81",
+    "55",
+    "53"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "aime25:9",
+   "T": 3,
+   "draft_answers": [
+    "81",
+    "81",
+    "89",
+    "81"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "aime25:9",
+   "T": 4,
+   "draft_answers": [
+    "81",
+    "81",
+    "81",
+    "81"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:11",
+   "T": 0,
+   "draft_answers": [
+    "1",
+    "1",
+    "1",
+    "1"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    4
+   ],
+   "n": 4,
+   "k": 1
+  },
+  {
+   "problem_id": "hmmt24:11",
+   "T": 1,
+   "draft_answers": [
+    "6",
+    "1",
+    "1",
+    "1"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    3
+   ],
+   "n": 8,
+   "k": 3
+  },
+  {
+   "problem_id": "hmmt24:11",
+   "T": 2,
+   "draft_answers": [
+    "1",
+    "6",
+    "6",
+    "1"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    2
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:11",
+   "T": 3,
+   "draft_answers": [
+    "1",
+    "6",
+    "6",
+    "6"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:11",
+   "T": 4,
+   "draft_answers": [
+    "6",
+    "6",
+    "6",
+    "6"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:13",
+   "T": 0,
+   "draft_answers": [
+    "90",
+    "60",
+    "90",
+    "90"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    3,
+    1
+   ],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "hmmt24:13",
+   "T": 1,
+   "draft_answers": [
+    "114",
+    "90",
+    "60",
+    "90"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1
+   ],
+   "n": 8,
+   "k": 7
+  },
+  {
+   "problem_id": "hmmt24:13",
+   "T": 2,
+   "draft_answers": [
+    "162",
+    "114",
+    "114",
+    "66"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:13",
+   "T": 3,
+   "draft_answers": [
+    "114",
+    "114",
+    "90",
+    "114"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:13",
+   "T": 4,
+   "draft_answers": [
+    "114",
+    "114",
+    "114",
+    "114"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:15",
+   "T": 0,
+   "draft_answers": [
+    "980",
+    "30",
+    "840",
+    "35"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 3
+  },
+  {
+   "problem_id": "hmmt24:15",
+   "T": 1,
+   "draft_answers": [
+    "875",
+    "980",
+    "840",
+    "3395"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 4
+  },
+  {
+   "problem_id": "hmmt24:15",
+   "T": 2,
+   "draft_answers": [
+    "875",
+    "30",
+    "4235",
+    "875"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:15",
+   "T": 3,
+   "draft_answers": [
+    "875",
+    "875",
+    "30",
+    "875"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:15",
+   "T": 4,
+   "draft_answers": [
+    "875",
+    "875",
+    "875",
+    "875"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:6",
+   "T": 0,
+   "draft_answers": [
+    "3573",
+    "318",
+    "0",
+    "1031"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 7
+  },
+  {
+   "problem_id": "hmmt24:6",
+   "T": 1,
+   "draft_answers": [
+    "0",
+    "318",
+    "1031",
+    "222"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:6",
+   "T": 2,
+   "draft_answers": [
+    "318",
+    "222",
+    "3573",
+    "222"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:6",
+   "T": 3,
+   "draft_answers": [
+    "1031",
+    "222",
+    "222",
+    "222"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:6",
+   "T": 4,
+   "draft_answers": [
+    "222",
+    "222",
+    "222",
+    "222"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:7",
+   "T": 0,
+   "draft_answers": [
+    "7",
+    "60",
+    "60",
+    "7"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    2
+   ],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "hmmt24:7",
+   "T": 1,
+   "draft_answers": [
+    "7",
+    "60",
+    "48",
+    "7"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:7",
+   "T": 2,
+   "draft_answers": [
+    "7",
+    "48",
+    "49",
+    "48"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:7",
+   "T": 3,
+   "draft_answers": [
+    "48",
+    "49",
+    "48",
+    "48"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "hmmt24:7",
+   "T": 4,
+   "draft_answers": [
+    "48",
+    "48",
+    "48",
+    "48"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:8",
+   "T": 0,
+   "draft_answers": [
+    "14293",
+    "13931",
+    "1234",
+    "7631"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 7
+  },
+  {
+   "problem_id": "hmmt24:8",
+   "T": 1,
+   "draft_answers": [
+    "20963",
+    "1234",
+    "7521",
+    "7631"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:8",
+   "T": 2,
+   "draft_answers": [
+    "1234",
+    "20963",
+    "7521",
+    "7521"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:8",
+   "T": 3,
+   "draft_answers": [
+    "7521",
+    "1234",
+    "7521",
+    "7521"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:8",
+   "T": 4,
+   "draft_answers": [
+    "7521",
+    "7521",
+    "7521",
+    "7521"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt24:9",
+   "T": 0,
+   "draft_answers": [
+    "\\;a+b+c\\in\\{\\,0,\\; i\\sqrt6,\\; -i\\sqrt6\\,\\}",
+    "\\,a+b+c\\in\\{0,\\;\\sqrt 6,\\;-\\sqrt 6,\\; i\\sqrt 6,\\;-i\\sqrt 6\\}\\,",
+    "\\;S=0\\;\\text{or}\\;S^3=-36\\;",
+    "0"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 0
+  },
+  {
+   "problem_id": "hmmt24:9",
+   "T": 1,
+   "draft_answers": [
+    "\\,a+b+c\\in\\{\\,0,\\;\\; i\\sqrt 6,\\;\\; -i\\sqrt 6\\,\\}\\;",
+    "\\,0\\,",
+    "\\,0,\\; i\\sqrt 6,\\; -\\,i\\sqrt 6\\,",
+    "\\,S=a+b+c\\in\\{\\,0,\\; i\\sqrt6,\\; -i\\sqrt6\\,\\}\\,"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 2
+  },
+  {
+   "problem_id": "hmmt24:9",
+   "T": 2,
+   "draft_answers": [
+    "\\,0,\\quad i\\sqrt 6,\\quad -\\,i\\sqrt 6\\,",
+    "\\,0\\,",
+    "\\,0,\\; i\\sqrt 6,\\; -\\,i\\sqrt 6\\,",
+    "\\;a+b+c = 0\\;\\text{ or }\\;\na+b+c^{\\,6}=-216\\;"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "hmmt24:9",
+   "T": 3,
+   "draft_answers": [
+    "\\,0,\\;\\; i\\sqrt6,\\;\\; -\\,i\\sqrt6\\,",
+    "\\,0,\\; i\\sqrt6,\\; -\\,i\\sqrt6\\,",
+    "\\;S=0\\;\\text{or}\\;S^3=-36\\;",
+    "\\,0,\\; i\\sqrt 6,\\; -\\,i\\sqrt 6\\,"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 4
+  },
+  {
+   "problem_id": "hmmt24:9",
+   "T": 4,
+   "draft_answers": [
+    "\\,0,\\quad i\\sqrt 6,\\quad -\\,i\\sqrt 6\\,",
+    "\\,0,\\;\\; i\\sqrt6,\\;\\; -\\,i\\sqrt6\\,",
+    "\\,0,\\; i\\sqrt 6,\\; -\\,i\\sqrt 6\\,",
+    "\\,0,\\; i\\sqrt6,\\; -\\,i\\sqrt6\\,"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "hmmt25:13",
+   "T": 0,
+   "draft_answers": [
+    "48",
+    "3414",
+    "55969",
+    "266"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 0
+  },
+  {
+   "problem_id": "hmmt25:13",
+   "T": 1,
+   "draft_answers": [
+    "105",
+    "48",
+    "55969",
+    "266"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 5
+  },
+  {
+   "problem_id": "hmmt25:13",
+   "T": 2,
+   "draft_answers": [
+    "105",
+    "105",
+    "6786",
+    "266"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 6
+  },
+  {
+   "problem_id": "hmmt25:13",
+   "T": 3,
+   "draft_answers": [
+    "105",
+    "105",
+    "105",
+    "266"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt25:13",
+   "T": 4,
+   "draft_answers": [
+    "105",
+    "105",
+    "105",
+    "105"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt25:15",
+   "T": 0,
+   "draft_answers": [
+    "206",
+    "202",
+    "184",
+    "202"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    2,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 2
+  },
+  {
+   "problem_id": "hmmt25:15",
+   "T": 1,
+   "draft_answers": [
+    "184",
+    "200",
+    "206",
+    "202"
+   ],
+   "draft_correct": [
+    false,
+    true,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 4
+  },
+  {
+   "problem_id": "hmmt25:15",
+   "T": 2,
+   "draft_answers": [
+    "200",
+    "202",
+    "200",
+    "184"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1,
+    1
+   ],
+   "n": 8,
+   "k": 7
+  },
+  {
+   "problem_id": "hmmt25:15",
+   "T": 3,
+   "draft_answers": [
+    "200",
+    "202",
+    "200",
+    "200"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt25:15",
+   "T": 4,
+   "draft_answers": [
+    "200",
+    "200",
+    "200",
+    "200"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt25:3",
+   "T": 0,
+   "draft_answers": [
+    "576",
+    "576",
+    "576",
+    "576"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    4
+   ],
+   "n": 8,
+   "k": 0
+  },
+  {
+   "problem_id": "hmmt25:3",
+   "T": 1,
+   "draft_answers": [
+    "\\dfrac1{576}",
+    "576",
+    "576",
+    "576"
+   ],
+   "draft_correct": [
+    true,
+    false,
+    false,
+    false
+   ],
+   "wrong_classes": [
+    3
+   ],
+   "n": 8,
+   "k": 0
+  },
+  {
+   "problem_id": "hmmt25:3",
+   "T": 2,
+   "draft_answers": [
+    "576",
+    "576",
+    "\\dfrac1{576}",
+    "\\dfrac{1}{576}"
+   ],
+   "draft_correct": [
+    false,
+    false,
+    true,
+    true
+   ],
+   "wrong_classes": [
+    2
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt25:3",
+   "T": 3,
+   "draft_answers": [
+    "\\dfrac{1}{576}",
+    "\\dfrac{1}{576}",
+    "\\dfrac1{576}",
+    "576"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    false
+   ],
+   "wrong_classes": [
+    1
+   ],
+   "n": 8,
+   "k": 8
+  },
+  {
+   "problem_id": "hmmt25:3",
+   "T": 4,
+   "draft_answers": [
+    "\\dfrac{1}{576}",
+    "\\frac{1}{576}",
+    "\\dfrac1{576}",
+    "\\dfrac{1}{576}"
+   ],
+   "draft_correct": [
+    true,
+    true,
+    true,
+    true
+   ],
+   "wrong_classes": [],
+   "n": 8,
+   "k": 8
+  }
+ ],
+ "provenance": {
+  "source": "neurips_result_aggregation dc_D compmath",
+  "baseline": "direct_fresh (16, seed 1234)"
+ }
+}

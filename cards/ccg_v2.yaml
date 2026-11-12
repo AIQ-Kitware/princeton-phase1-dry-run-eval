@@ -1,0 +1,198 @@
+# Contextual drag, CCG v2: does the CCG v2 law, fitted on a model's accuracy with
+# zero, one and two correct drafts, predict its accuracy with three and four?
+#
+# Implements "Contextual Drag as a Log-Count Vote" (Team Princeton-2, November 11, 2026).
+# The card generates nothing: its only node scores ladder files that already exist. By default
+# these are the six competition-mathematics ladders bundled in data/ccg_v2/ladders (GPT-OSS-120B,
+# GPT-OSS-20B, Gemma4-31B, Gemma4-E4B, Qwen3-32B, Qwen3-8B; AIME/HMMT 2024-25; measured before
+# submission with the protocol of the version-1 card; see the PROVENANCE.md there). The ladders of
+# any version-1 run can be scored instead by pointing ccg_v2.ladders_dpath at
+# <OUTPUT_PATH>/_kwdagger/ladder and ccg_v2.ladders_glob at '*/ladder.json' (and setting
+# n_targets_expected and min_models_pass to the number of models in that run).
+#
+# Law. With K = 4 drafts of which T are correct,
+#   logit p(T) = c + w log((T + 1/2) / (K - T + 1/2)),
+# with c and w fitted per model by weighted least squares on the log-odds of its accuracies at
+# T = 0, 1, 2. No parameter comes from another model and no constant is tuned.
+#
+# Pre-registered (fixed before the run): the bundled ladders (sha256 in PROVENANCE.md), the law,
+# the calibration rungs (0, 1, 2), the predicted rungs (3, 4), the 5-point tolerance, the pass rule
+# (every scored model within tolerance at both rungs) and the bootstrap settings below.
+#
+# On the bundled ladders this procedure gives T = 3 / T = 4 errors of -3.1/-0.2 (GPT-OSS-120B),
+# -3.6/-0.4 (GPT-OSS-20B), +0.2/+0.7 (Gemma4-31B), +0.7/+1.2 (Gemma4-E4B), -0.2/-1.7 (Qwen3-32B)
+# and -3.2/-0.8 (Qwen3-8B): all six pass.
+
+name: ccg_v2
+
+title: "Contextual Drag — CCG v2: T = 0, 1, 2 predict T = 3, 4"
+
+description: |
+  Asking a model to improve on earlier attempts in its context is a building block of recursive
+  self-improvement, but the attempts do more than inform: correct drafts pull the model toward the
+  right answer and wrong drafts toward their errors (contextual drag). This card tests a law of
+  that effect as a predictor of unmeasured mixtures of drafts.
+
+  With K = 4 drafts of which T are correct, the law says the model's log-odds of answering
+  correctly are c + w log((T + 1/2)/(K - T + 1/2)): the model's odds of a correct answer are e^c times
+  the draft odds (T + 1/2)/(K - T + 1/2) to the power w (1/2 is the Jeffreys pseudo-count). c is the log-odds of a correct answer when the drafts are tied two
+  against two; w is the model's sensitivity to the draft odds. The log ratio is antisymmetric about the
+  tie, so in log-odds the upper half of a model's ladder mirrors the lower half.
+
+  For each of six models on competition mathematics, c and w are fitted to the model's own
+  accuracies with zero, one and two correct drafts, and the law predicts its accuracies with three
+  and four. The claim is that every prediction is within 5 points of the measured accuracy. The
+  card scores existing measurements only; it does not generate anything. Bootstrap intervals over
+  problems are reported; at 18 to 30 problems per model they are wider than the tolerance, so the
+  verdict rests on the point estimates. A straight-line extrapolation is reported as a no-law
+  baseline.
+
+version: 2.0
+
+organizations:
+  - Princeton
+
+submitter:
+  name: Yun Cheng
+  email: yc6206@princeton.edu
+
+tags:
+  - contextual-drag
+  - reasoning
+  - in-context-learning
+  - self-improvement
+  - prediction
+  - competition-math
+
+links:
+  - title: "Cheng, Zhu, Zhao and Arora. Contextual Drag: How Errors in the Context Affect LLM Reasoning. arXiv:2602.04288 (2026)"
+    url: "https://arxiv.org/abs/2602.04288"
+    type: "publication"
+  - title: "contextual_drag implementation"
+    url: "https://github.com/Princeton-TA1-Team/phase1-dry-run-eval"
+    type: "software"
+  - title: "AIME 2024"
+    url: "https://huggingface.co/datasets/HuggingFaceH4/aime_2024"
+    type: "dataset"
+  - title: "AIME 2025"
+    url: "https://huggingface.co/datasets/opencompass/AIME2025"
+    type: "dataset"
+  - title: "HMMT February 2024 and 2025"
+    url: "https://huggingface.co/datasets/MathArena/hmmt_feb_2025"
+    type: "dataset"
+
+category: "Predictive Generalization"
+
+# Every link is read from cards/nodes/cd_ccg_v2.py with `ast`; nothing is imported.
+theory:
+  indexes:
+    - ../theory/indexes/ccg_v2.yaml
+    - ../theory/indexes/hygiene.yaml
+
+  empirical_sources:
+    - nodes/cd_ccg_v2.py
+
+  links:
+    - relation: tests
+      ref: AIQ.Teams.Princeton.CCGv2.lower_half_predicts_upper
+      note: >
+        The claim below is this conjecture's pass criterion for the six bundled models.
+    - relation: approximates
+      ref: AIQ.Teams.Princeton.CCGv2.law
+      note: >
+        The fitted law, by weighted least squares on the log-odds of the calibration rungs.
+    - relation: motivates
+      ref: AIQ.Teams.Princeton.CCGv2.symmetry_and_sensitivity
+      note: >
+        The mirror symmetry is why the lower half predicts the upper; the compression bound is why
+        calibrating on the lower, unsaturated rungs is the stable direction. Proved on paper and
+        checked numerically, not formalized.
+
+claim:
+  python: |
+    # Read by name rather than bulk-dumped, so the verdict records exactly the leaves it consumed.
+    result = metrics.ccg_v2
+    status = result.status
+    detail = result.detail
+
+    # Not an assert: MAGNET maps AssertionError to FALSIFIED and anything else to INCONCLUSIVE.
+    if status == 'INCONCLUSIVE':
+        raise RuntimeError(f"Inconclusive: {detail}")
+
+    models = sorted({key.split('.')[0] for key in result.per_model.keys()})
+    if len(models) != n_targets_expected:
+        raise RuntimeError(
+            f"Inconclusive: {len(models)} models scored, the card declares {n_targets_expected}")
+
+    passing, report = [], []
+    for model in models:
+        fold = result.per_model[model]
+        errors = [fold['err_pp']['3'], fold['err_pp']['4']]
+        if all(abs(e) <= tolerance_pp for e in errors):
+            passing.append(model)
+        report.append(f"{model}: T3 {errors[0]:+.2f}, T4 {errors[1]:+.2f} pp "
+                      f"(c {fold['c']:.2f}, w {fold['w']:.2f})")
+    print('[ccg_v2] ' + '; '.join(report))
+    print(f'[ccg_v2] {len(passing)}/{len(models)} models within {tolerance_pp} pp '
+          f'at T = 3 and T = 4: {passing}')
+
+    assert len(passing) >= min_models_pass, (
+        f"{len(passing)} of {len(models)} models have both predictions within {tolerance_pp} "
+        f"points; the claim needs {min_models_pass}. " + '; '.join(report))
+
+symbols:
+  tolerance_pp:
+    type: float
+    value: 5.0
+  min_models_pass:
+    type: int
+    value: 6
+  n_targets_expected:
+    type: int
+    value: 6
+
+  ccg_v2.mae_pp:
+    metadata:
+      display_name: "Mean |error|, T = 3 and 4 (pp)"
+      display: True
+      define_metric:
+        objective: minimize
+        aggregation_strategy:
+          type: 'mean'
+  ccg_v2.max_abs_err_pp:
+    metadata:
+      display_name: "Largest |error| (pp)"
+      display: True
+  ccg_v2.n_models_pass:
+    metadata:
+      display_name: "Models within 5 pp at T = 3 and 4"
+      display: True
+  ccg_v2.line_mae_pp:
+    metadata:
+      display_name: "Mean |error| of straight-line extrapolation, no law (pp)"
+      display: True
+  ccg_v2.n_models_supported:
+    metadata:
+      display_name: "Models whose 95% intervals lie within 5 pp"
+      display: True
+
+# Judge this invocation's run, not every result the shared store holds.
+evidence:
+  scope: requested
+
+kwdagger:
+  pipeline: 'cards.pipelines.ccg_v2_pipeline()'
+  result_node: ccg_v2
+  matrix:
+    # The ladders scored. Nothing upstream generates them; point this at
+    # <OUTPUT_PATH>/_kwdagger/ladder (with ladders_glob '*/ladder.json') to score a version-1 run.
+    ccg_v2.ladders_dpath: 'data/ccg_v2/ladders'
+    ccg_v2.ladders_glob: '*.json'
+    ccg_v2.n_targets_expected: 6
+    ccg_v2.calibration_rungs: '0,1,2'
+    ccg_v2.predict_rungs: '3,4'
+    ccg_v2.tolerance_pp: 5.0
+    ccg_v2.min_models_pass: 6
+    ccg_v2.n_boot: 2000
+    ccg_v2.boot_seed: 20261111
+    ccg_v2.confidence: 0.95
