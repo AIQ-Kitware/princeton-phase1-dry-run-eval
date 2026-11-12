@@ -4,8 +4,8 @@ One verb:
 
   ``score``  -- read ladder files, fit each model on its own calibration rungs (default
                 T = 0, 1, 2), predict the held-out rungs (default T = 3, 4), bootstrap over problems,
-                and write a summary JSON. Nothing is generated; any ladder written by the card
-                (version 1 or 2) is accepted::
+                and write a summary JSON. Any ladder file in the format of
+                ``data/ccg_v2/ladders`` is accepted::
 
     python -m contextual_drag analysis ccg_v2 score \\
         --ladders data/ccg_v2/ladders/*.json --out scores.json

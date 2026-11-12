@@ -5,18 +5,14 @@ With K drafts in context, T of them correct, model m answers correctly with prob
 
     logit p_m(T) = c_m + w_m * l(T),    l(T) = log((T + 1/2) / (K - T + 1/2)).
 
-Equivalently, the odds of a correct answer are e^c times the draft odds (T + 1/2)/(K - T + 1/2) to the power w; the 1/2 is the Jeffreys pseudo-count. c_m is the log-odds of a
-correct answer when the drafts are tied (l(K/2) = 0); w_m is the model's sensitivity to the draft odds.
-Both are fitted by weighted least squares on the log-odds of the calibration rungs (delta-method
-weights p(1 - p); probabilities clipped to half a response of the 8N in a rung), and the law then
-predicts the other rungs. No parameter comes from another model and no constant is tuned.
+c_m is the log-odds of a correct answer when the drafts are tied (l(K/2) = 0); w_m is how strongly
+the model follows its drafts. Both are fitted by weighted least squares on the log-odds of the
+calibration rungs (delta-method weights p(1 - p); probabilities clipped to half a response of the
+8N in a rung), and the law then predicts the other rungs. No parameter comes from another model and
+no constant is tuned.
 
-The input is a ladder file of ``cards/nodes/cd_ladder.py`` (schema
-``contextual_drag.route_model.ladder/1``), so every ladder measured by either version of the card
-is scored as it is.
-
-Reference: "Contextual Drag as a Log-Count Vote", Team Princeton-2, November 11, 2026
-(aiq-ccg-theory-overleaf, Contextual_Drag_1111.tex).
+The input is a ladder file (schema ``contextual_drag.route_model.ladder/1``), as in
+``data/ccg_v2/ladders``.
 """
 from __future__ import annotations
 

@@ -2,9 +2,7 @@
 #
 # Run the ccg_v2 card, cards/ccg_v2.yaml.
 #
-# The card generates nothing: it scores the bundled ladders in data/ccg_v2/ladders (or, with
-# ccg_v2.ladders_dpath overridden in the card, the ladders of a version-1 run).
-# No GPU and no model endpoint are needed.
+# The measurements are in data/ccg_v2/ladders; no GPU and no model endpoint are needed.
 #
 #   bash scripts/run_ccg_v2.sh                     # full run
 #   bash scripts/run_ccg_v2.sh --dry_run True      # compile the pipeline only

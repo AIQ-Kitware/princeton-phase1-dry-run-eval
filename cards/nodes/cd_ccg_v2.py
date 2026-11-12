@@ -1,12 +1,11 @@
 """
-The only node of CCG v2: score existing ladders with the CCG v2 law.
+The only node of the ccg_v2 card.
 
-Reads every ladder file matching ``ladders_glob`` under ``ladders_dpath`` -- by default the six
-bundled competition-mathematics ladders in ``data/ccg_v2/ladders``, or the ``ladder`` outputs of a
-version-1 run (``<OUTPUT_PATH>/_kwdagger/ladder`` with glob ``*/ladder.json``) --
-runs ``contextual_drag analysis ccg_v2 score``, and emits the card's whole result. Each model
-is fitted on its own T = 0, 1, 2 and its T = 3 and T = 4 accuracies are predicted. Nothing is
-generated, so the card needs no GPU and no model endpoint.
+Reads every ladder file matching ``ladders_glob`` under ``ladders_dpath`` (in the card,
+``data/ccg_v2/ladders/GPT_OSS_20B.json``), runs ``contextual_drag analysis ccg_v2 score``, and
+emits the card's result. Each model is fitted on its
+own T = 0, 1, 2 and its T = 3 and T = 4 accuracies are predicted. No responses are generated, so
+the card needs no GPU and no model endpoint.
 
 The verdict is the claim's to make. This node reports the errors, the intervals and the same pass
 rule, and reports INCONCLUSIVE when the ladders cannot support a verdict: no ladder found, a
@@ -27,10 +26,9 @@ SCHEMA_VERSION = 1
 
 
 @theory.satisfies('Hygiene.Inference.threshold_exceeds_sampling_error::hprespecified',
-                  note='tolerance_pp, the calibration and predicted rungs and min_models_pass are '
-                       'card defaults fixed before the run')
+                  note='the 5-point tolerance is the BAA criterion of at most 5% error')
 class CDCcgV2CLI(scfg.DataConfig):
-    """Score existing ladders with the CCG v2 law (calibrate T = 0, 1, 2; predict T = 3, 4)."""
+    """Score ladders with the CCG v2 law (calibrate T = 0, 1, 2; predict T = 3, 4)."""
 
     ladders_dpath = scfg.Value(None, help='Directory holding the ladder files.', tags=['in_path'])
     ladders_glob = scfg.Value('*.json', type=str, help='Glob under ladders_dpath.', tags=['algo_param'])
@@ -63,8 +61,7 @@ class CDCcgV2CLI(scfg.DataConfig):
     @theory.assumes('Hygiene.Measurement.measured_score_tracks_construct::hcontam',
                     note='AIME and HMMT 2024-25 are public; no contamination check')
     @theory.assumes('Hygiene.Measurement.measured_score_tracks_construct::hstable',
-                    note='the bundled ladders were generated with fixed seeds and orders; the card does '
-                         'not regenerate them')
+                    note='the measurements were generated with fixed seeds and draft orders')
     @classmethod
     def main(cls, argv=None, **kwargs):
         config = cls.cli(argv=argv, data=kwargs, strict=True, verbose=True)
@@ -98,12 +95,18 @@ class CDCcgV2CLI(scfg.DataConfig):
               analysis_fpath=analysis_fpath, min_models_pass=int(config.min_models_pass))
 
 
+#: Values written when nothing could be scored, so that MAGNET can still resolve the card's metric
+#: symbols and report INCONCLUSIVE.
+_PLACEHOLDERS = dict(n_models=0, n_models_pass=0, n_models_supported=0, n_models_line_pass=0,
+                     mae_pp=-1.0, max_abs_err_pp=-1.0, line_mae_pp=-1.0, tolerance_pp=None)
+
+
 def _emit(summary_fpath, *, status, detail, ladders, analysis=None, analysis_fpath=None, min_models_pass=None):
     analysis = analysis or {}
-    keys = ('n_models', 'n_models_pass', 'n_models_supported', 'n_models_line_pass', 'mae_pp',
-            'max_abs_err_pp', 'line_mae_pp', 'tolerance_pp')
+    if not analysis:
+        detail = f'{detail} (no measurements scored; metrics are placeholders)'
     write_manifest(summary_fpath, schema_version=SCHEMA_VERSION, status=status, detail=detail,
-                   **{k: analysis.get(k) for k in keys}, min_models_pass=min_models_pass,
+                   **{k: analysis.get(k, v) for k, v in _PLACEHOLDERS.items()}, min_models_pass=min_models_pass,
                    per_model=analysis.get('per_model', {}), ladders=ladders, config=analysis.get('config'),
                    analysis_fpath=analysis_fpath)
     print(f'[ccg_v2] status={status} n_models_pass={analysis.get("n_models_pass")} '

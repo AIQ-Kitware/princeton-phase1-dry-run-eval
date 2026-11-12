@@ -1,51 +1,25 @@
-# Contextual drag, CCG v2: does the CCG v2 law, fitted on a model's accuracy with
-# zero, one and two correct drafts, predict its accuracy with three and four?
+# ccg_v2: contextual drag in GPT-OSS-20B on competition mathematics.
 #
-# Implements "Contextual Drag as a Log-Count Vote" (Team Princeton-2, November 11, 2026).
-# The card generates nothing: its only node scores ladder files that already exist. By default
-# these are the six competition-mathematics ladders bundled in data/ccg_v2/ladders (GPT-OSS-120B,
-# GPT-OSS-20B, Gemma4-31B, Gemma4-E4B, Qwen3-32B, Qwen3-8B; AIME/HMMT 2024-25; measured before
-# submission with the protocol of the version-1 card; see the PROVENANCE.md there). The ladders of
-# any version-1 run can be scored instead by pointing ccg_v2.ladders_dpath at
-# <OUTPUT_PATH>/_kwdagger/ladder and ccg_v2.ladders_glob at '*/ladder.json' (and setting
-# n_targets_expected and min_models_pass to the number of models in that run).
-#
-# Law. With K = 4 drafts of which T are correct,
-#   logit p(T) = c + w log((T + 1/2) / (K - T + 1/2)),
-# with c and w fitted per model by weighted least squares on the log-odds of its accuracies at
-# T = 0, 1, 2. No parameter comes from another model and no constant is tuned.
-#
-# Pre-registered (fixed before the run): the bundled ladders (sha256 in PROVENANCE.md), the law,
-# the calibration rungs (0, 1, 2), the predicted rungs (3, 4), the 5-point tolerance, the pass rule
-# (every scored model within tolerance at both rungs) and the bootstrap settings below.
-#
-# On the bundled ladders this procedure gives T = 3 / T = 4 errors of -3.1/-0.2 (GPT-OSS-120B),
-# -3.6/-0.4 (GPT-OSS-20B), +0.2/+0.7 (Gemma4-31B), +0.7/+1.2 (Gemma4-E4B), -0.2/-1.7 (Qwen3-32B)
-# and -3.2/-0.8 (Qwen3-8B): all six pass.
+# GPT-OSS-20B answers each problem with K = 4 of its own earlier drafts in its context, T of them
+# correct. The card fits
+#   logit p(T) = c + w log((T + 1/2) / (K - T + 1/2))
+# to its accuracy at T = 0, 1, 2 and tests whether it predicts the accuracy at T = 3 and T = 4
+# within 5 percentage points. The measurements (AIME and HMMT 2024-25) are in
+# data/ccg_v2/ladders/GPT_OSS_20B.json; the card needs no GPU and no model endpoint.
 
 name: ccg_v2
 
-title: "Contextual Drag — CCG v2: T = 0, 1, 2 predict T = 3, 4"
+title: "Contextual Drag — CCG v2 for GPT-OSS-20B: T = 0, 1, 2 predict T = 3, 4"
 
 description: |
-  Asking a model to improve on earlier attempts in its context is a building block of recursive
-  self-improvement, but the attempts do more than inform: correct drafts pull the model toward the
-  right answer and wrong drafts toward their errors (contextual drag). This card tests a law of
-  that effect as a predictor of unmeasured mixtures of drafts.
+  GPT-OSS-20B answers a competition-mathematics problem (AIME and HMMT 2024-25) with K = 4 of its
+  own earlier drafts in its context, T of them correct. Its accuracy is modelled as
+  logit p(T) = c + w log((T + 1/2) / (K - T + 1/2)), where c is the log-odds of a correct answer
+  when the drafts are tied two against two and w is how strongly the model follows its drafts.
 
-  With K = 4 drafts of which T are correct, the law says the model's log-odds of answering
-  correctly are c + w log((T + 1/2)/(K - T + 1/2)): the model's odds of a correct answer are e^c times
-  the draft odds (T + 1/2)/(K - T + 1/2) to the power w (1/2 is the Jeffreys pseudo-count). c is the log-odds of a correct answer when the drafts are tied two
-  against two; w is the model's sensitivity to the draft odds. The log ratio is antisymmetric about the
-  tie, so in log-odds the upper half of a model's ladder mirrors the lower half.
-
-  For each of six models on competition mathematics, c and w are fitted to the model's own
-  accuracies with zero, one and two correct drafts, and the law predicts its accuracies with three
-  and four. The claim is that every prediction is within 5 points of the measured accuracy. The
-  card scores existing measurements only; it does not generate anything. Bootstrap intervals over
-  problems are reported; at 18 to 30 problems per model they are wider than the tolerance, so the
-  verdict rests on the point estimates. A straight-line extrapolation is reported as a no-law
-  baseline.
+  c and w are fitted to the model's accuracy at T = 0, 1, 2, and the law predicts its accuracy at
+  T = 3 and T = 4. The claim is that both predictions are within 5 percentage points of the
+  measured accuracy. The measurements are included with the card.
 
 version: 2.0
 
@@ -146,10 +120,10 @@ symbols:
     value: 5.0
   min_models_pass:
     type: int
-    value: 6
+    value: 1
   n_targets_expected:
     type: int
-    value: 6
+    value: 1
 
   ccg_v2.mae_pp:
     metadata:
@@ -184,15 +158,14 @@ kwdagger:
   pipeline: 'cards.pipelines.ccg_v2_pipeline()'
   result_node: ccg_v2
   matrix:
-    # The ladders scored. Nothing upstream generates them; point this at
-    # <OUTPUT_PATH>/_kwdagger/ladder (with ladders_glob '*/ladder.json') to score a version-1 run.
+    # The measurements scored; any directory of ladder files in the same format can be used.
     ccg_v2.ladders_dpath: 'data/ccg_v2/ladders'
-    ccg_v2.ladders_glob: '*.json'
-    ccg_v2.n_targets_expected: 6
+    ccg_v2.ladders_glob: 'GPT_OSS_20B.json'
+    ccg_v2.n_targets_expected: 1
     ccg_v2.calibration_rungs: '0,1,2'
     ccg_v2.predict_rungs: '3,4'
     ccg_v2.tolerance_pp: 5.0
-    ccg_v2.min_models_pass: 6
+    ccg_v2.min_models_pass: 1
     ccg_v2.n_boot: 2000
     ccg_v2.boot_seed: 20261111
     ccg_v2.confidence: 0.95

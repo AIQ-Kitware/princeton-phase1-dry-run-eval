@@ -1,4 +1,4 @@
-"""Tests for the ccg_v2 card: the CCG v2 law, its scoring, and that the card generates nothing."""
+"""Tests for the ccg_v2 card: the CCG v2 law, its scoring, and the card's single scoring stage."""
 import hashlib
 import json
 import math
@@ -14,8 +14,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 LADDERS = REPO_ROOT / 'data' / 'ccg_v2' / 'ladders'
 CARD = REPO_ROOT / 'cards' / 'ccg_v2.yaml'
 
-# Table 1 of "Contextual Drag as a Log-Count Vote" (Nov 11, 2026): c, w from T = 0, 1, 2 and the
-# T = 3, T = 4 errors (pp).
+# Expected results (README, Section 3): c, w from T = 0, 1, 2 and the T = 3, T = 4 errors (pp).
 NOTE = {
     'GPT_OSS_120B': (1.76, 1.27, -3.1, -0.2),
     'GPT_OSS_20B': (1.80, 0.93, -3.6, -0.4),
@@ -91,7 +90,7 @@ def test_node_scores_the_bundled_ladders(tmp_path):
     assert result['status'] == 'VERIFIED' and result['n_models_pass'] == 6
 
 
-def test_node_scores_a_version1_store_layout(tmp_path):
+def test_node_scores_a_nested_directory_layout(tmp_path):
     store = tmp_path / '_kwdagger' / 'ladder'
     for i, name in enumerate(('GPT_OSS_20B', 'Qwen3_32B')):
         d = store / f'ladder_id_{i}'
@@ -119,3 +118,16 @@ def test_card_generates_nothing():
     matrix = yaml.safe_load(CARD.read_text())['kwdagger']['matrix']
     assert (REPO_ROOT / matrix['ccg_v2.ladders_dpath']).is_dir()
     assert not any('inference' in k for k in matrix)
+
+
+def test_card_is_restricted_to_gpt_oss_20b(tmp_path):
+    import yaml
+    card = yaml.safe_load(CARD.read_text())
+    matrix = card['kwdagger']['matrix']
+    selected = sorted((REPO_ROOT / matrix['ccg_v2.ladders_dpath']).glob(matrix['ccg_v2.ladders_glob']))
+    assert [p.name for p in selected] == ['GPT_OSS_20B.json']
+    assert matrix['ccg_v2.n_targets_expected'] == matrix['ccg_v2.min_models_pass'] == 1
+    assert card['symbols']['n_targets_expected']['value'] == card['symbols']['min_models_pass']['value'] == 1
+    result = _run_node(tmp_path, ladders_dpath=str(LADDERS), ladders_glob='GPT_OSS_20B.json',
+                       n_targets_expected=1, min_models_pass=1)
+    assert result['status'] == 'VERIFIED' and list(result['per_model']) == ['GPT_OSS_20B']
